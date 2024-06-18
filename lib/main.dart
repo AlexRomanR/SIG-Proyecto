@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gestion_asistencia_docente/components/utils/splash_screen.dart';
 import 'package:gestion_asistencia_docente/screens/login/home_screen.dart';
 import 'package:gestion_asistencia_docente/screens/login/login_screen.dart';
+import 'package:gestion_asistencia_docente/services/api/asistenciasService.dart';
+import 'package:gestion_asistencia_docente/services/api/licenciasService.dart';
+import 'package:gestion_asistencia_docente/services/api/programacion_academicaService.dart';
 import 'package:gestion_asistencia_docente/services/auth/auth_service.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +25,10 @@ class _AppStateState extends State<AppState> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: ( _ ) => AuthService()),
+        ChangeNotifierProvider(create: ( _ ) => ProgramacionAcademicaService()),
+        ChangeNotifierProvider(create: ( _ ) => AsistenciasService()),
+        ChangeNotifierProvider(create: ( _ ) => LicenciasService()),
+
 
      //   ChangeNotifierProvider(create: ( _ ) => VehicleService()),
       ],
@@ -45,10 +52,10 @@ class MyApp extends StatelessWidget {
       'splash':  ( _ ) =>SplashScreen()
      },
      theme: ThemeData.light().copyWith(
-      scaffoldBackgroundColor: Colors.orange[50],
+      scaffoldBackgroundColor: const Color.fromARGB(255, 14, 13, 12),
       appBarTheme: const AppBarTheme(
         elevation: 0,
-        color: Colors.red
+        color: Color.fromARGB(255, 0, 0, 0)
       )
      ),
      

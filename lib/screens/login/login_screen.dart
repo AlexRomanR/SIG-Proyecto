@@ -5,8 +5,6 @@ import 'dart:ui';
 import 'package:gestion_asistencia_docente/services/auth/auth_service.dart';
 import 'package:provider/provider.dart';
 
-
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -26,10 +24,10 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           Container(
             decoration: BoxDecoration(
-              // image: DecorationImage(
-              //   image: AssetImage('assets/utils/school_background.jpg'),
-              //   fit: BoxFit.cover,
-              // ),
+              image: DecorationImage(
+                image: AssetImage('assets/utils/login.png'),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           Center(
@@ -53,11 +51,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        Image.asset(
+                          'assets/utils/logo.png', // Ruta de tu imagen dentro de los assets
+                          width: 140, // Ancho deseado para el logo
+                          height: 140, // Alto deseado para el logo
+                        ),
                         Text(
-                          'Iniciar Sesión',
+                          'BIENVENIDO A UNY-SYS',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(
+                                255, 199, 80, 0), // Color del texto
                           ),
                         ),
                         SizedBox(height: 20),
@@ -66,6 +71,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: InputDecoration(
                             labelText: 'Correo Electrónico',
                             prefixIcon: Icon(Icons.email),
+                          ),
+                          style: TextStyle(
+                            color: Colors
+                                .white, // Color del texto dentro del TextFormField
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -81,6 +90,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           decoration: InputDecoration(
                             labelText: 'Contraseña',
                             prefixIcon: Icon(Icons.lock),
+                          ),
+                          style: TextStyle(
+                            color: Colors
+                                .white, // Color del texto dentro del TextFormField
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {

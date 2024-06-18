@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_asistencia_docente/components/utils/sidebar.dart';
 
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -16,62 +15,58 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: const SideBar(),
       appBar: AppBar(
         title: const Text('Inicio'),
+        foregroundColor: Colors.white, // Color del texto en blanco
       ),
-      body: Center(
-        child: Column(
-   
-          crossAxisAlignment: CrossAxisAlignment.center, // Centrar el contenido horizontalmente
-          children: [
-            Text(
-              'Bienvenido a la agenda electrónica del colegio 15 de mayo',
-              textAlign: TextAlign.center, // Centrar el texto
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+      body: Stack(
+        children: [
+          // Imagen de fondo
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                    'assets/utils/image.png'), // Asegúrate de que la imagen esté en la carpeta assets
+                fit: BoxFit.cover,
               ),
             ),
-            SizedBox(height: 24), // Espacio entre los textos
-            Text(
-              'Funcionalidades:',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+          ),
+          const SizedBox(height: 30),
+          // Contenido
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Sistema de control de asistencias\nUNI-SYS',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white, // Color del texto
+                  ),
+                ),
+                const SizedBox(height: 500),
+                Text(
+                  'A través de un sistema innovador facilitamos la toma de asistencia de docentes de forma precisa',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        // Esto añade un sombreado para el efecto de contorno
+                        blurRadius: 10,
+                        color: Colors.black,
+                        offset: Offset(10, 10),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+              ],
             ),
-            SizedBox(height: 16),
-            _buildFeatureItem(
-              title: 'Revisar información del perfil',
-              icon: Icons.person,
-            ),
-            _buildFeatureItem(
-              title: 'Ver las actividades del calendario',
-              icon: Icons.calendar_today,
-            ),
-            _buildFeatureItem(
-              title: 'Actividades del curso al que perteneces',
-              icon: Icons.school,
-            ),
-            _buildFeatureItem(
-              title: 'Los comunicados del colegio',
-              icon: Icons.message,
-            ),
-            _buildFeatureItem(
-              title: 'Las materias que hay',
-              icon: Icons.book,
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildFeatureItem({required String title, required IconData icon}) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      onTap: () {
-        // Aquí puedes agregar la navegación a las respectivas pantallas o funcionalidades
-      },
     );
   }
 }

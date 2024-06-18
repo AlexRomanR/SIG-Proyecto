@@ -18,6 +18,7 @@ class AuthService extends ChangeNotifier {
 
   bool get authentificate => _isloggedIn;
   User get user => _user!;
+  String? get token => _token;  // Agregar el getter para el token
 
   Servidor servidor = Servidor();
 
@@ -30,13 +31,13 @@ Future<String> login(String email, String password, String device_name) async {
     final response = await http.post(
       Uri.parse('${servidor.baseURL}/auth/token'),
       headers: {
-        'Content-Type': 'application/json',  // Asegúrate de que el tipo de contenido es JSON
+        'Content-Type': 'application/json',  
         'Accept': 'application/json',
       },
       body: jsonEncode({
         'email': email,
         'password': password,
-        'device_name': device_name,  // Incluye device_name si es necesario
+        'device_name': device_name, 
       }),
     );
 
@@ -47,7 +48,7 @@ Future<String> login(String email, String password, String device_name) async {
       String token = response.body.toString();
       print('Token obtenido: $token');
       
-      // Verifica que el token no sea nulo antes de llamar a tryToken
+   
       if (token != null && token.isNotEmpty) {
         try {
           tryToken(token);

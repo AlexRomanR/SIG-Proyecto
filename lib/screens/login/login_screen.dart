@@ -115,11 +115,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                   context,
                                   listen: false);
                               String respuesta = await authService.login(
-                                  email, password, 'movil');
+                                  email, password);
 
                               print(respuesta);
 
-                              if (respuesta == 'correcto') {
+                              if (respuesta == 'Login exitoso') {
                                 Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(

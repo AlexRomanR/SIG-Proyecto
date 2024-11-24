@@ -15,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: const SideBar(),
       appBar: AppBar(
         title: const Text('Inicio'),
-        foregroundColor: Colors.white, // Color del texto en blanco
+        foregroundColor: Color.fromARGB(255, 255, 255, 255), // Color del texto en blanco
       ),
       body: Stack(
         children: [
@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    'assets/utils/image.png'), // Asegúrate de que la imagen esté en la carpeta assets
+                    'assets/utils/grijo.jpg'), // Asegúrate de que la imagen esté en la carpeta assets
                 fit: BoxFit.cover,
               ),
             ),
@@ -36,17 +36,17 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Sistema de control de asistencias\nUNI-SYS',
+                  'Sistema para el corte planificado de servicios públicos\nOOSIV R.L.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white, // Color del texto
+                    color: Color.fromARGB(255, 255, 255, 255), // Color del texto
                   ),
                 ),
                 const SizedBox(height: 500),
                 Text(
-                  'A través de un sistema innovador facilitamos la toma de asistencia de docentes de forma precisa',
+                  'A través de un sistema electronico fácilitamos el corte y registro de servicios publicos.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 18,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gestion_asistencia_docente/screens/asistencias/asistenciasView.dart';
+import 'package:gestion_asistencia_docente/screens/cortes/cortesDashBoard.dart';
+import 'package:gestion_asistencia_docente/screens/cortes/cortesRutasLocal.dart';
 import 'package:gestion_asistencia_docente/screens/licencias/licenciasView.dart';
 import 'package:gestion_asistencia_docente/screens/login/home_screen.dart';
 import 'package:gestion_asistencia_docente/screens/login/login_screen.dart';
@@ -13,8 +15,6 @@ class SideBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context, listen: false);
-    final user = authService.user;
 
     return Drawer(
       child: Container(
@@ -35,7 +35,7 @@ class SideBar extends StatelessWidget {
                 },
                 child: Center(
                   child: Text(
-                    'BIENVENIDO A\nUNI-SYS',
+                    'BIENVENIDO A\nOOSIV R.L.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white, // Texto blanco
@@ -48,7 +48,7 @@ class SideBar extends StatelessWidget {
             ),
             ListTile(
               title: Text(
-                'PROGRAMACIÓN ACADEMICA',
+                'SISTEMAS',
                 style: TextStyle(
                   color: const Color.fromARGB(255, 184, 184, 184),
                   fontWeight: FontWeight.bold,
@@ -57,52 +57,56 @@ class SideBar extends StatelessWidget {
             ),
             ListTile(
               title: Text(
-                'Visualizar mi Programación Academica',
+                'Lectura',
                 style: TextStyle(color: Colors.white),
               ),
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ProgramacionAcademicaView()));
+                // Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //         builder: (context) => const ProgramacionAcademicaView()));
               },
             ),
-            Divider(color: Colors.white, thickness: 1),
             ListTile(
               title: Text(
-                'GESTIÓN DE ASISTENCIAS',
-                style: TextStyle(
-                  color: const Color.fromARGB(255, 184, 184, 184),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            ListTile(
-              title: Text(
-                'Mis Asistencias',
+                'Cortes',
                 style: TextStyle(color: Colors.white),
               ),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AsistenciasView(),
+                    builder: (context) => const CortesDashboardView(),
                   ),
                 );
               },
             ),
             ListTile(
               title: Text(
-                'Mis Licencias',
+                'Rutas guardadas localmente (eliminar luego)',
                 style: TextStyle(color: Colors.white),
               ),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const LicenciasView(),
+                    builder: (context) => const ViewSavedRutas(),
                   ),
                 );
+              },
+            ),
+            ListTile(
+              title: Text(
+                'Reconexión',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => const LicenciasView(),
+                //   ),
+                // );
               },
             ),
             Divider(color: Colors.white, thickness: 1),

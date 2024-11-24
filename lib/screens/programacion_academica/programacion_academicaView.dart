@@ -35,7 +35,6 @@ class _ProgramacionAcademicaViewState extends State<ProgramacionAcademicaView> {
     super.initState();
     final authService = context.read<AuthService>();
     userId = authService.user.id.toString();
-    token = authService.token!;
     programacionAcademicaService = ProgramacionAcademicaService();
     asistenciasService = AsistenciasService();
     _loadAsistencias();

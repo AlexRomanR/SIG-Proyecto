@@ -18,7 +18,7 @@ dependencies:
   intl: ^0.17.0
   geolocator: ^8.0.0
   shared_preferences: ^2.0.8
-
+  xml: ^6.1.0
 
   cupertino_icons: ^1.0.6
 
@@ -36,6 +36,7 @@ flutter:
     - assets/utils/splash.png
     - assets/utils/GestionAsis.jpg
     - assets/utils/image.png
+    - assets/utils/grijo.jpg 
     - assets/utils/login.png
     - assets/utils/logo.png
     

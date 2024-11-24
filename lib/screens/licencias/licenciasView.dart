@@ -24,7 +24,7 @@ class _LicenciasViewState extends State<LicenciasView> {
     super.initState();
     final authService = context.read<AuthService>();
     userId = authService.user.id.toString();
-    token = authService.token!;
+
     licenciasService = LicenciasService();
     _loadData();
   }

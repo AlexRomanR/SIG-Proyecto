@@ -21,7 +21,6 @@ class _AsistenciasViewState extends State<AsistenciasView> {
     super.initState();
     final authService = context.read<AuthService>();
     userId = authService.user.id.toString();
-    token = authService.token!;
     asistenciasService = AsistenciasService();
     _loadData();
   }

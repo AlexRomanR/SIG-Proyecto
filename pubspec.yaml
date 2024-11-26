@@ -19,6 +19,7 @@ dependencies:
   geolocator: ^8.0.0
   shared_preferences: ^2.0.8
   xml: ^6.1.0
+  google_maps_flutter: ^2.10.0
 
   cupertino_icons: ^1.0.6
 

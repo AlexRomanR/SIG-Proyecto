@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_asistencia_docente/screens/cortes/ImportCortesFromServer.dart';
+import 'package:gestion_asistencia_docente/screens/cortes/mapaCortes.dart';
 
 class CortesDashboardView extends StatelessWidget {
   const CortesDashboardView({super.key});
@@ -44,7 +45,12 @@ class CortesDashboardView extends StatelessWidget {
               icon: Icons.edit_note,
               color: Colors.greenAccent,
               onPressed: () {
-                print("Registrar cortes");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const mapaCortes(),
+                  ),
+                );
               },
             ),
             SizedBox(height: 16),

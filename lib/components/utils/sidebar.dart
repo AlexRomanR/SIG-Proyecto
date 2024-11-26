@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:gestion_asistencia_docente/screens/cortes/registroCorteLista.dart';
+
 import 'package:gestion_asistencia_docente/screens/asistencias/asistenciasView.dart';
 import 'package:gestion_asistencia_docente/screens/cortes/cortesDashBoard.dart';
 import 'package:gestion_asistencia_docente/screens/cortes/cortesRutasLocal.dart';
@@ -107,6 +109,20 @@ class SideBar extends StatelessWidget {
                 //     builder: (context) => const LicenciasView(),
                 //   ),
                 // );
+              },
+            ),
+            ListTile(
+              title: Text(
+                'Lista Registros',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ListaRegistrosScreen(),
+                  ),
+                );
               },
             ),
             Divider(color: Colors.white, thickness: 1),

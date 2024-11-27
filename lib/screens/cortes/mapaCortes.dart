@@ -176,11 +176,12 @@ class _MapaCortesState extends State<mapaCortes> {
 
   Future<void> _loadDataAndBuildRoute() async {
     final rutas = await _loadSavedRutas();
+    final cutPoints = await _loadCutPoints(); // Cargar puntos cortados
     if (rutas.isEmpty) {
       return;
     }
 
-    final rutasLimitadas = rutas.take(12).toList();
+    final rutasLimitadas = rutas.take(10).toList();
 
     final oficinaInicial = LatLng(-16.3776, -60.9605);
     final oficinaFinal = LatLng(-16.3850, -60.9651);
@@ -213,18 +214,27 @@ class _MapaCortesState extends State<mapaCortes> {
 
     for (int i = 0; i < rutasLimitadas.length; i++) {
       final point = rutasLimitadas[i];
+      bool isCut = cutPoints.contains(point.bscocNcoc.toString());
+  
       markersTemp.add(Marker(
         markerId: MarkerId('punto_${i + 1}'),
         position: LatLng(point.bscntlati, point.bscntlogi),
         infoWindow: InfoWindow(title: 'Punto ${i + 1}'),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => registroCorte(ruta: point),
-            ),
-          );
-        },
+        icon: isCut
+            ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen)
+            : BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        onTap: isCut
+            ? null
+            : () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => registroCorte(ruta: point),
+                  ),
+                ).then((_) {
+                  _loadDataAndBuildRoute();
+                });
+              },
       ));
     }
 
@@ -284,7 +294,7 @@ try {
         this.estimatedTime = estimatedTime;
         this.totalDistanceText = totalDistanceText;
         this.totalPoints = rutasLimitadas.length.toString();
-        this.cutPoints = cutPoints;
+        this.cutPoints = cutPoints.length.toString(); 
       });
     } else {
       print("No se encontraron direcciones");
@@ -332,6 +342,13 @@ try {
     }
     return polyline;
   }
+
+  Future<Set<String>> _loadCutPoints() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> cutPoints = prefs.getStringList('puntos_cortados') ?? [];
+    return cutPoints.toSet();
+  }
+
 
   @override
   Widget build(BuildContext context) {

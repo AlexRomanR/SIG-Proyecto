@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:gestion_asistencia_docente/screens/cortes/prueba.dart';
 import 'package:gestion_asistencia_docente/screens/cortes/registroCorteLista.dart';
 
 import 'package:gestion_asistencia_docente/screens/asistencias/asistenciasView.dart';
@@ -79,6 +80,20 @@ class SideBar extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const CortesDashboardView(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: Text(
+                'Cortes',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Prueba(),
                   ),
                 );
               },

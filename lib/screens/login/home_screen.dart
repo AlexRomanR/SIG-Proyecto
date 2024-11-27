@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/components/utils/sidebar.dart';
+import 'package:sig_proyecto/components/utils/sidebar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -15,7 +15,8 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: const SideBar(),
       appBar: AppBar(
         title: const Text('Inicio'),
-        foregroundColor: Color.fromARGB(255, 255, 255, 255), // Color del texto en blanco
+        foregroundColor:
+            Color.fromARGB(255, 255, 255, 255), // Color del texto en blanco
       ),
       body: Stack(
         children: [
@@ -41,7 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 255, 255, 255), // Color del texto
+                    color:
+                        Color.fromARGB(255, 255, 255, 255), // Color del texto
                   ),
                 ),
                 const SizedBox(height: 500),

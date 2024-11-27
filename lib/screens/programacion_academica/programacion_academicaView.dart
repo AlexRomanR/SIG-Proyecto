@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/models/asistencias.dart';
-import 'package:gestion_asistencia_docente/screens/licencias/licenciasCrear.dart';
-import 'package:gestion_asistencia_docente/services/api/asistenciasService.dart';
-import 'package:gestion_asistencia_docente/services/api/programacion_academicaService.dart';
-import 'package:gestion_asistencia_docente/services/server.dart';
+import 'package:sig_proyecto/models/asistencias.dart';
+import 'package:sig_proyecto/screens/licencias/licenciasCrear.dart';
+import 'package:sig_proyecto/services/api/asistenciasService.dart';
+import 'package:sig_proyecto/services/api/programacion_academicaService.dart';
+import 'package:sig_proyecto/services/server.dart';
 import 'package:provider/provider.dart';
-import 'package:gestion_asistencia_docente/services/auth/auth_service.dart';
+import 'package:sig_proyecto/services/auth/auth_service.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:geolocator/geolocator.dart';
@@ -78,7 +78,7 @@ class _ProgramacionAcademicaViewState extends State<ProgramacionAcademicaView> {
           return Scaffold(
             appBar: AppBar(
               title: const Text('Programación Académica'),
-                      foregroundColor: Colors.white, // Color del texto en blanco
+              foregroundColor: Colors.white, // Color del texto en blanco
             ),
             body: ListView.builder(
               itemCount: programacionAcademicaService.progAcademica.length,
@@ -147,8 +147,9 @@ class _ProgramacionAcademicaViewState extends State<ProgramacionAcademicaView> {
 
                     final bool isWithinDistance = distance <= 70;
 
-                return Card(
-                      color: Colors.grey[900], // Fondo negro claro de la tarjeta
+                    return Card(
+                      color:
+                          Colors.grey[900], // Fondo negro claro de la tarjeta
                       elevation: 4.0,
                       margin: const EdgeInsets.symmetric(
                           vertical: 10, horizontal: 15),

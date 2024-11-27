@@ -1,6 +1,6 @@
 {
-    "name": "gestion_asistencia_docente",
-    "short_name": "gestion_asistencia_docente",
+    "name": "sig_proyecto",
+    "short_name": "sig_proyecto",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

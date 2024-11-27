@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/screens/login/home_screen.dart';
-import 'package:gestion_asistencia_docente/screens/login/login_screen.dart';
-import 'package:gestion_asistencia_docente/services/auth/auth_service.dart';
-
-
-
+import 'package:sig_proyecto/screens/login/home_screen.dart';
+import 'package:sig_proyecto/screens/login/login_screen.dart';
+import 'package:sig_proyecto/services/auth/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
   @override
-  
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
@@ -33,7 +29,6 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
-
       );
     } else {
       // Si el usuario no ha iniciado sesión, navegar a la pantalla de inicio de sesión
@@ -49,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Center(
         child: Image(
-          image: AssetImage('assets/utils/splash.png'),  
+          image: AssetImage('assets/utils/splash.png'),
           fit: BoxFit.cover,
           width: 200,
           height: 200,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/services/api/asistenciasService.dart';
+import 'package:sig_proyecto/services/api/asistenciasService.dart';
 import 'package:provider/provider.dart';
 
-import 'package:gestion_asistencia_docente/services/auth/auth_service.dart';
+import 'package:sig_proyecto/services/auth/auth_service.dart';
 
 class AsistenciasView extends StatefulWidget {
   const AsistenciasView({Key? key}) : super(key: key);

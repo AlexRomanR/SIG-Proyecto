@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/models/rutas_sin_cortar.dart';
-import 'package:gestion_asistencia_docente/screens/login/home_screen.dart';
-import 'package:gestion_asistencia_docente/models/registro_corte.dart';
+import 'package:sig_proyecto/models/rutas_sin_cortar.dart';
+import 'package:sig_proyecto/screens/login/home_screen.dart';
+import 'package:sig_proyecto/models/registro_corte.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class registroCorte extends StatefulWidget {
@@ -17,65 +17,67 @@ class registroCorte extends StatefulWidget {
 class _RegistroCorteScreenState extends State<registroCorte> {
   final TextEditingController _valorMedidorController = TextEditingController();
 
-void _guardarRegistro() async {
-  final valorMedidor = _valorMedidorController.text.isEmpty 
-    ? '-1'  // Si el campo está vacío, asigna '-1'
-    : _valorMedidorController.text;
+  void _guardarRegistro() async {
+    final valorMedidor = _valorMedidorController.text.isEmpty
+        ? '-1' // Si el campo está vacío, asigna '-1'
+        : _valorMedidorController.text;
 
-  final nuevoRegistro = RegistroCorte(
-    codigoUbicacion: widget.ruta.bscocNcoc,
-    codigoFijo: widget.ruta.bscntCodf,
-    nombre: widget.ruta.dNomb,
-    medidorSerie: widget.ruta.bsmednser,
-    numeroMedidor: widget.ruta.bsmedNume,
-    valorMedidor: valorMedidor,
-    fechaCorte: DateTime.now(),
-  );
-
-  try {
-    // Obtener instancia de SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
-
-    // Recuperar registros previos, si existen
-    final registrosJson = prefs.getString('registros_corte') ?? '[]';
-    final List<dynamic> registrosPrevios = jsonDecode(registrosJson);
-
-    // Añadir nuevo registro a la lista
-    registrosPrevios.add(nuevoRegistro.toMap());
-
-    // Guardar la lista actualizada en memoria
-    await prefs.setString('registros_corte', jsonEncode(registrosPrevios));
-
-    // Mostrar mensaje de éxito
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('¡Registro guardado exitosamente!'),
-        backgroundColor: Colors.green,
-      ),
+    final nuevoRegistro = RegistroCorte(
+      codigoUbicacion: widget.ruta.bscocNcoc,
+      usuarioRelacionado: widget.ruta.bscocNcnt,
+      codigoFijo: widget.ruta.bscntCodf,
+      nombre: widget.ruta.dNomb,
+      medidorSerie: widget.ruta.bsmednser,
+      numeroMedidor: widget.ruta.bsmedNume,
+      valorMedidor: valorMedidor,
+      fechaCorte: DateTime.now(),
     );
 
-    // Limpiar el controlador de texto
-    setState(() {
-      _valorMedidorController.clear();
-    });
-  } catch (e) {
-    print('Error al guardar el registro: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Error al guardar el registro'),
-        backgroundColor: Colors.red,
-      ),
-    );
+    try {
+      // Obtener instancia de SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+
+      // Recuperar registros previos, si existen
+      final registrosJson = prefs.getString('registros_corte') ?? '[]';
+      final List<dynamic> registrosPrevios = jsonDecode(registrosJson);
+
+      // Añadir nuevo registro a la lista
+      registrosPrevios.add(nuevoRegistro.toMap());
+
+      // Guardar la lista actualizada en memoria
+      await prefs.setString('registros_corte', jsonEncode(registrosPrevios));
+
+      // Mostrar mensaje de éxito
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('¡Registro guardado exitosamente!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Limpiar el controlador de texto
+      setState(() {
+        _valorMedidorController.clear();
+      });
+    } catch (e) {
+      print('Error al guardar el registro: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error al guardar el registro'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
-}
+
   void _irAlPlano() {
     // Navegar a la pantalla del plano
-    Navigator.pop(context); 
+    Navigator.pop(context);
   }
 
   void _irMenuPrincipal() {
     // Navegar al menú principal
-        Navigator.push(
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => const HomeScreen(),

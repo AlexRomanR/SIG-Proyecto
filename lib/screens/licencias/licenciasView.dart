@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/screens/licencias/licenciasEditar.dart';
-import 'package:gestion_asistencia_docente/services/api/licenciasService.dart';
-import 'package:gestion_asistencia_docente/services/server.dart';
+import 'package:sig_proyecto/screens/licencias/licenciasEditar.dart';
+import 'package:sig_proyecto/services/api/licenciasService.dart';
+import 'package:sig_proyecto/services/server.dart';
 import 'package:provider/provider.dart';
-import 'package:gestion_asistencia_docente/services/auth/auth_service.dart';
+import 'package:sig_proyecto/services/auth/auth_service.dart';
 import 'package:http/http.dart' as http;
 
 class LicenciasView extends StatefulWidget {
@@ -53,7 +53,6 @@ class _LicenciasViewState extends State<LicenciasView> {
     print('Response body: ${response.body}');
 
     if (response.statusCode == 204) {
-  
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Licencia eliminada exitosamente'),
@@ -88,7 +87,7 @@ class _LicenciasViewState extends State<LicenciasView> {
           return Scaffold(
             appBar: AppBar(
               title: Text('Licencias'),
-                      foregroundColor: Colors.white, // Color del texto en blanco
+              foregroundColor: Colors.white, // Color del texto en blanco
             ),
             body: ListView.builder(
               itemCount: licenciasService.licencias.length,
@@ -106,14 +105,18 @@ class _LicenciasViewState extends State<LicenciasView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Motivo: ${licencia.motivo}',
-                              style: TextStyle(color: Colors.white),),
+                        Text(
+                          'Motivo: ${licencia.motivo}',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         RichText(
                           text: TextSpan(
                             children: [
                               TextSpan(
                                 text: 'Estado: ',
-                                style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
+                                style: TextStyle(
+                                    color: const Color.fromARGB(
+                                        255, 255, 255, 255)),
                               ),
                               TextSpan(
                                 text: licencia.estado,
@@ -125,39 +128,53 @@ class _LicenciasViewState extends State<LicenciasView> {
                                           : licencia.estado == 'Aceptado'
                                               ? Colors.green
                                               : Colors.black,
-                                              fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        Text('Fecha: ${licencia.fecha}',
-                              style: TextStyle(color: Colors.white),),
+                        Text(
+                          'Fecha: ${licencia.fecha}',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         SizedBox(height: 10),
                         Text(
-                            'Docente: ${licencia.docenteMaterias.docente.name}',
-                              style: TextStyle(color: Colors.white), ),
+                          'Docente: ${licencia.docenteMaterias.docente.name}',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         Text(
-                            'Materia: ${licencia.docenteMaterias.materia.nombre}',
-                              style: TextStyle(color: Colors.white),),
+                          'Materia: ${licencia.docenteMaterias.materia.nombre}',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         Text(
-                            'Horario: ${licencia.docenteMaterias.horarioInicio} - ${licencia.docenteMaterias.horarioFin}',
-                              style: TextStyle(color: Colors.white),),
-                        Text('Día: ${licencia.docenteMaterias.dia}',
-                              style: TextStyle(color: Colors.white),),
-                        Text('Grupo: ${licencia.docenteMaterias.grupo}',
-                              style: TextStyle(color: Colors.white),),
+                          'Horario: ${licencia.docenteMaterias.horarioInicio} - ${licencia.docenteMaterias.horarioFin}',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         Text(
-                            'Carrera: ${licencia.docenteMaterias.carrera.nombre}',
-                              style: TextStyle(color: Colors.white),),
-                        Text('Aula: ${licencia.docenteMaterias.aula.numero}',
-                              style: TextStyle(color: Colors.white),),
+                          'Día: ${licencia.docenteMaterias.dia}',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         Text(
-                            'Módulo: ${licencia.docenteMaterias.modulo.numero}',
-                              style: TextStyle(color: Colors.white),),
+                          'Grupo: ${licencia.docenteMaterias.grupo}',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         Text(
-                            'Facultad: ${licencia.docenteMaterias.facultad.nombre}',
-                              style: TextStyle(color: Colors.white),),
+                          'Carrera: ${licencia.docenteMaterias.carrera.nombre}',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          'Aula: ${licencia.docenteMaterias.aula.numero}',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          'Módulo: ${licencia.docenteMaterias.modulo.numero}',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          'Facultad: ${licencia.docenteMaterias.facultad.nombre}',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         Row(
                           children: [
                             IconButton(

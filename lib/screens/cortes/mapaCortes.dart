@@ -2,12 +2,10 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/models/rutas_sin_cortar.dart';
+import 'package:sig_proyecto/models/rutas_sin_cortar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:gestion_asistencia_docente/screens/cortes/registroCorte.dart';
-
-
+import 'package:sig_proyecto/screens/cortes/registroCorte.dart';
 
 class mapaCortes extends StatelessWidget {
   const mapaCortes({super.key});
@@ -54,14 +52,18 @@ class mapaCortes extends StatelessWidget {
     final dLon = (lon2 - lon1) * (pi / 180);
 
     final a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(lat1 * (pi / 180)) * cos(lat2 * (pi / 180)) * sin(dLon / 2) * sin(dLon / 2);
+        cos(lat1 * (pi / 180)) *
+            cos(lat2 * (pi / 180)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
 
     final c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return R * c; // Distancia en kilómetros
   }
 
   // Construir la matriz de distancias entre todos los puntos (incluyendo oficina inicial y final)
-  List<List<double>> buildDistanceMatrix(List<RutasSinCortar> rutas, LatLng oficinaInicial, LatLng oficinaFinal) {
+  List<List<double>> buildDistanceMatrix(
+      List<RutasSinCortar> rutas, LatLng oficinaInicial, LatLng oficinaFinal) {
     final n = rutas.length + 2; // Incluye oficina inicial y final
     final matrix = List.generate(n, (_) => List.filled(n, double.infinity));
 
@@ -124,7 +126,8 @@ class mapaCortes extends StatelessWidget {
   }
 
   // Función para permutar las rutas y probar diferentes combinaciones
-  void _permute(List<int> route, int start, int end, List<List<double>> matrix, Function(List<int>) callback) {
+  void _permute(List<int> route, int start, int end, List<List<double>> matrix,
+      Function(List<int>) callback) {
     if (start == end) {
       callback(route);
       return;
@@ -153,158 +156,172 @@ class mapaCortes extends StatelessWidget {
     return total;
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: Text('Mapa de Cortes', style: TextStyle(color: Colors.white)),
-      backgroundColor: Colors.black,
-      centerTitle: true,
-    ),
-    body: FutureBuilder<List<RutasSinCortar>>(
-      future: _loadSavedRutas(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator(color: Colors.lightBlueAccent));
-        } else if (snapshot.hasError) {
-          return const Center(child: Text('Error al cargar rutas guardadas', style: TextStyle(color: Colors.red)));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No hay rutas guardadas', style: TextStyle(color: Colors.white)));
-        }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Mapa de Cortes', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        centerTitle: true,
+      ),
+      body: FutureBuilder<List<RutasSinCortar>>(
+        future: _loadSavedRutas(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+                child:
+                    CircularProgressIndicator(color: Colors.lightBlueAccent));
+          } else if (snapshot.hasError) {
+            return const Center(
+                child: Text('Error al cargar rutas guardadas',
+                    style: TextStyle(color: Colors.red)));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+                child: Text('No hay rutas guardadas',
+                    style: TextStyle(color: Colors.white)));
+          }
 
-        final rutas = snapshot.data!;
-        final rutasLimitadas = rutas.take(5).toList(); // Limitar a 5 puntos intermedios
+          final rutas = snapshot.data!;
+          final rutasLimitadas =
+              rutas.take(5).toList(); // Limitar a 5 puntos intermedios
 
-        // Coordenadas de la oficina inicial y final
-        final oficinaInicial = LatLng(-16.3776, -60.9605);
-        final oficinaFinal = LatLng(-16.3850, -60.9651);
+          // Coordenadas de la oficina inicial y final
+          final oficinaInicial = LatLng(-16.3776, -60.9605);
+          final oficinaFinal = LatLng(-16.3850, -60.9651);
 
-        final distanceMatrix = buildDistanceMatrix(rutasLimitadas, oficinaInicial, oficinaFinal);
-        final bestRoute = tsp(distanceMatrix); // Obtener la mejor ruta
+          final distanceMatrix =
+              buildDistanceMatrix(rutasLimitadas, oficinaInicial, oficinaFinal);
+          final bestRoute = tsp(distanceMatrix); // Obtener la mejor ruta
 
-        // Crear la ruta óptima (con oficinas inicial y final)
-        List<LatLng> routeCoordinates = [];
-        routeCoordinates.add(oficinaInicial); // Agregar oficina inicial
+          // Crear la ruta óptima (con oficinas inicial y final)
+          List<LatLng> routeCoordinates = [];
+          routeCoordinates.add(oficinaInicial); // Agregar oficina inicial
 
-        for (int i = 1; i < bestRoute.length - 1; i++) {
-          final point = rutasLimitadas[bestRoute[i] - 1];
-          routeCoordinates.add(LatLng(point.bscntlati, point.bscntlogi));
-        }
+          for (int i = 1; i < bestRoute.length - 1; i++) {
+            final point = rutasLimitadas[bestRoute[i] - 1];
+            routeCoordinates.add(LatLng(point.bscntlati, point.bscntlogi));
+          }
 
-        routeCoordinates.add(oficinaFinal); // Agregar oficina final
+          routeCoordinates.add(oficinaFinal); // Agregar oficina final
 
-        // Crear los marcadores
-        Set<Marker> markers = {};
-        markers.add(Marker(
-          markerId: MarkerId('oficina_inicial'),
-          position: oficinaInicial,
-          infoWindow: InfoWindow(title: 'Oficina Inicial', snippet: 'Lat: -16.3776, Long: -60.9605'),
-        ));
-
-        markers.add(Marker(
-          markerId: MarkerId('oficina_final'),
-          position: oficinaFinal,
-          infoWindow: InfoWindow(title: 'Oficina Final', snippet: 'Lat: -16.3850, Long: -60.9651'),
-        ));
-
-        // Agregar puntos intermedios
-        for (int i = 0; i < rutasLimitadas.length; i++) {
-          final point = rutasLimitadas[i];
+          // Crear los marcadores
+          Set<Marker> markers = {};
           markers.add(Marker(
-            markerId: MarkerId('punto_${i + 1}'),
-            position: LatLng(point.bscntlati, point.bscntlogi),
-            infoWindow: InfoWindow(title: 'Punto ${i + 1}'),
-            onTap: () {
-            // Navegar a la pantalla de RegistroCorte con los datos de la ruta
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => registroCorte(ruta: point),
-              ),
-              );
-            },
+            markerId: MarkerId('oficina_inicial'),
+            position: oficinaInicial,
+            infoWindow: InfoWindow(
+                title: 'Oficina Inicial',
+                snippet: 'Lat: -16.3776, Long: -60.9605'),
           ));
-        }
 
-        // Lógica para calcular tiempo estimado y distancia
-        double totalDistance = 0.0;
-        for (int i = 0; i < routeCoordinates.length - 1; i++) {
-          totalDistance += calculateDistance(routeCoordinates[i], routeCoordinates[i + 1]);
-        }
+          markers.add(Marker(
+            markerId: MarkerId('oficina_final'),
+            position: oficinaFinal,
+            infoWindow: InfoWindow(
+                title: 'Oficina Final',
+                snippet: 'Lat: -16.3850, Long: -60.9651'),
+          ));
 
-        // Establecer valores fijos para el tiempo estimado y puntos cortados, puedes modificar estos valores si los calculas dinámicamente
-        String estimatedTime = '1h 30m'; // Aquí se puede usar un cálculo dinámico si lo tienes
-        String totalDistanceText = '${totalDistance.toStringAsFixed(2)} km';
-        String totalPoints = rutasLimitadas.length.toString();
-        String cutPoints = '0'; // Aquí también puedes actualizarlo si tienes los datos de puntos cortados
+          // Agregar puntos intermedios
+          for (int i = 0; i < rutasLimitadas.length; i++) {
+            final point = rutasLimitadas[i];
+            markers.add(Marker(
+              markerId: MarkerId('punto_${i + 1}'),
+              position: LatLng(point.bscntlati, point.bscntlogi),
+              infoWindow: InfoWindow(title: 'Punto ${i + 1}'),
+              onTap: () {
+                // Navegar a la pantalla de RegistroCorte con los datos de la ruta
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => registroCorte(ruta: point),
+                  ),
+                );
+              },
+            ));
+          }
 
-        return Column(
-          children: [
-            Expanded(
-              child: GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: oficinaInicial,
-                  zoom: 13,
+          // Lógica para calcular tiempo estimado y distancia
+          double totalDistance = 0.0;
+          for (int i = 0; i < routeCoordinates.length - 1; i++) {
+            totalDistance +=
+                calculateDistance(routeCoordinates[i], routeCoordinates[i + 1]);
+          }
+
+          // Establecer valores fijos para el tiempo estimado y puntos cortados, puedes modificar estos valores si los calculas dinámicamente
+          String estimatedTime =
+              '1h 30m'; // Aquí se puede usar un cálculo dinámico si lo tienes
+          String totalDistanceText = '${totalDistance.toStringAsFixed(2)} km';
+          String totalPoints = rutasLimitadas.length.toString();
+          String cutPoints =
+              '0'; // Aquí también puedes actualizarlo si tienes los datos de puntos cortados
+
+          return Column(
+            children: [
+              Expanded(
+                child: GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: oficinaInicial,
+                    zoom: 13,
+                  ),
+                  markers: markers,
+                  polylines: {
+                    Polyline(
+                      polylineId: PolylineId('ruta_optima'),
+                      points: routeCoordinates,
+                      color: Colors.blue,
+                      width: 5,
+                    ),
+                  },
                 ),
-                markers: markers,
-                polylines: {
-                  Polyline(
-                    polylineId: PolylineId('ruta_optima'),
-                    points: routeCoordinates,
-                    color: Colors.blue,
-                    width: 5,
-                  ),
-                },
               ),
-            ),
-            Container(
-              color: Colors.black,
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  Text(
-                    'Tiempo Estimado: $estimatedTime',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                  Text(
-                    'Distancia Total: $totalDistanceText',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                  Text(
-                    'Total de Puntos: $totalPoints',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                  Text(
-                    'Puntos Cortados: $cutPoints',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                ],
+              Container(
+                color: Colors.black,
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'Tiempo Estimado: $estimatedTime',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    Text(
+                      'Distancia Total: $totalDistanceText',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    Text(
+                      'Total de Puntos: $totalPoints',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    Text(
+                      'Puntos Cortados: $cutPoints',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        );
-      },
-    ),
-  );
-}
+            ],
+          );
+        },
+      ),
+    );
+  }
 
 // Función para calcular la distancia entre dos puntos
-double calculateDistance(LatLng start, LatLng end) {
-  const double radius = 6371; // Radio de la Tierra en km
-  double lat1 = start.latitude * (3.14159265359 / 180);
-  double lon1 = start.longitude * (3.14159265359 / 180);
-  double lat2 = end.latitude * (3.14159265359 / 180);
-  double lon2 = end.longitude * (3.14159265359 / 180);
+  double calculateDistance(LatLng start, LatLng end) {
+    const double radius = 6371; // Radio de la Tierra en km
+    double lat1 = start.latitude * (3.14159265359 / 180);
+    double lon1 = start.longitude * (3.14159265359 / 180);
+    double lat2 = end.latitude * (3.14159265359 / 180);
+    double lon2 = end.longitude * (3.14159265359 / 180);
 
-  double dLat = lat2 - lat1;
-  double dLon = lon2 - lon1;
+    double dLat = lat2 - lat1;
+    double dLon = lon2 - lon1;
 
-  double a = (sin(dLat / 2) * sin(dLat / 2)) +
-      cos(lat1) * cos(lat2) * (sin(dLon / 2) * sin(dLon / 2));
-  double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-  return radius * c; // Distancia en km
-}
-
+    double a = (sin(dLat / 2) * sin(dLat / 2)) +
+        cos(lat1) * cos(lat2) * (sin(dLon / 2) * sin(dLon / 2));
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return radius * c; // Distancia en km
+  }
 }
 
 
@@ -571,7 +588,7 @@ double calculateDistance(LatLng start, LatLng end) {
 // import 'package:flutter/material.dart';
 // import 'package:http/http.dart' as http;
 // import 'package:google_maps_flutter/google_maps_flutter.dart';
-// import 'package:gestion_asistencia_docente/models/rutas_sin_cortar.dart';
+// import 'package:sig_proyecto/models/rutas_sin_cortar.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
 // class mapaCortes extends StatelessWidget {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/screens/login/home_screen.dart';
+import 'package:sig_proyecto/screens/login/home_screen.dart';
 import 'dart:ui';
 
-import 'package:gestion_asistencia_docente/services/auth/auth_service.dart';
+import 'package:sig_proyecto/services/auth/auth_service.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -114,8 +114,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               final authService = Provider.of<AuthService>(
                                   context,
                                   listen: false);
-                              String respuesta = await authService.login(
-                                  email, password);
+                              String respuesta =
+                                  await authService.login(email, password);
 
                               print(respuesta);
 

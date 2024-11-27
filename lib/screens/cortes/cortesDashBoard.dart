@@ -1,15 +1,44 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/screens/cortes/ImportCortesFromServer.dart';
-import 'package:gestion_asistencia_docente/screens/cortes/mapaCortes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sig_proyecto/screens/cortes/ImportCortesFromServer.dart';
+import 'package:sig_proyecto/screens/cortes/mapaCortes.dart';
+import 'package:sig_proyecto/screens/cortes/registroCorteLista.dart';
+import 'package:sig_proyecto/services/api/rutasService.dart';
+import 'package:sig_proyecto/models/registro_corte.dart'; // Modelo de RegistroCorte
 
-class CortesDashboardView extends StatelessWidget {
+class CortesDashboardView extends StatefulWidget {
   const CortesDashboardView({super.key});
+
+  @override
+  State<CortesDashboardView> createState() => _CortesDashboardViewState();
+}
+
+class _CortesDashboardViewState extends State<CortesDashboardView> {
+  List<RegistroCorte> registros = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarRegistros();
+  }
+
+  Future<void> _cargarRegistros() async {
+    final prefs = await SharedPreferences.getInstance();
+    final registrosJson = prefs.getString('registros_corte') ?? '[]';
+    final List<dynamic> registrosMap = jsonDecode(registrosJson);
+
+    setState(() {
+      registros =
+          registrosMap.map((map) => RegistroCorte.fromMap(map)).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Dashboard de Cortes',
           style: TextStyle(color: Colors.white),
         ),
@@ -20,10 +49,10 @@ class CortesDashboardView extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(50.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start, // Posiciona los elementos desde la parte superior
-          crossAxisAlignment: CrossAxisAlignment.center, // Centra los botones horizontalmente
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 30), // Espaciado inicial desde la parte superior
+            const SizedBox(height: 30),
             _buildButton(
               context: context,
               text: "Importar cortes desde el servidor",
@@ -38,7 +67,7 @@ class CortesDashboardView extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildButton(
               context: context,
               text: "Registrar cortes",
@@ -53,24 +82,45 @@ class CortesDashboardView extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildButton(
               context: context,
               text: "Exportar cortes al servidor",
               icon: Icons.cloud_upload,
               color: Colors.orangeAccent,
-              onPressed: () {
-                print("Exportar cortes al servidor");
+              onPressed: () async {
+                if (registros.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('No hay registros para exportar.'),
+                    ),
+                  );
+                  return;
+                }
+
+                final rutasService = RutasService();
+                await rutasService.exportarCortesAlServidor(registros);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Registros exportados al servidor.'),
+                  ),
+                );
               },
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildButton(
               context: context,
               text: "Lista de cortes realizados",
               icon: Icons.list_alt,
               color: Colors.redAccent,
               onPressed: () {
-                print("Lista de cortes realizados");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ListaRegistrosScreen(),
+                  ),
+                );
               },
             ),
           ],
@@ -92,7 +142,7 @@ class CortesDashboardView extends StatelessWidget {
         backgroundColor: Colors.black,
         side: BorderSide(color: color, width: 2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       ),
       icon: Icon(icon, color: color, size: 24),
       label: Text(

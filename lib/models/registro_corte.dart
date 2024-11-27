@@ -1,5 +1,6 @@
 class RegistroCorte {
   final int codigoUbicacion;
+  final int usuarioRelacionado;
   final int codigoFijo;
   final String nombre;
   final String medidorSerie;
@@ -9,6 +10,7 @@ class RegistroCorte {
 
   RegistroCorte({
     required this.codigoUbicacion,
+    required this.usuarioRelacionado,
     required this.codigoFijo,
     required this.nombre,
     required this.medidorSerie,
@@ -21,6 +23,7 @@ class RegistroCorte {
   Map<String, dynamic> toMap() {
     return {
       'codigoUbicacion': codigoUbicacion,
+      'usuarioRelacionado': usuarioRelacionado,
       'codigoFijo': codigoFijo,
       'nombre': nombre,
       'medidorSerie': medidorSerie,
@@ -34,6 +37,7 @@ class RegistroCorte {
   factory RegistroCorte.fromMap(Map<String, dynamic> map) {
     return RegistroCorte(
       codigoUbicacion: map['codigoUbicacion'],
+      usuarioRelacionado: map['usuarioRelacionado'],
       codigoFijo: map['codigoFijo'],
       nombre: map['nombre'],
       medidorSerie: map['medidorSerie'],

@@ -1,4 +1,4 @@
-# gestion_asistencia_docente
+# sig_proyecto
 
 A new Flutter project.
 

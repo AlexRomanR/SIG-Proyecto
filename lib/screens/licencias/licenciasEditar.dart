@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/models/licencias.dart';
-import 'package:gestion_asistencia_docente/screens/licencias/licenciasView.dart';
-import 'package:gestion_asistencia_docente/services/api/licenciasService.dart';
-import 'package:gestion_asistencia_docente/services/auth/auth_service.dart';
-import 'package:gestion_asistencia_docente/services/server.dart';
+import 'package:sig_proyecto/models/licencias.dart';
+import 'package:sig_proyecto/screens/licencias/licenciasView.dart';
+import 'package:sig_proyecto/services/api/licenciasService.dart';
+import 'package:sig_proyecto/services/auth/auth_service.dart';
+import 'package:sig_proyecto/services/server.dart';
 import 'package:provider/provider.dart';
 
 import 'package:http/http.dart' as http;

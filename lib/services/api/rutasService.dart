@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/models/rutas.dart';
-import 'package:gestion_asistencia_docente/server.dart';
+import 'package:intl/intl.dart';
+import 'package:sig_proyecto/models/rutas.dart';
+import 'package:sig_proyecto/server.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
+import 'package:sig_proyecto/models/registro_corte.dart';
 
 class RutasService extends ChangeNotifier {
   List<Ruta> rutas = [];
@@ -87,4 +89,49 @@ class RutasService extends ChangeNotifier {
 
     return rutas;
   }
+
+  Future<void> exportarCortesAlServidor(List<RegistroCorte> registros) async {
+    for (var registro in registros) {
+      // Construir el cuerpo SOAP con los valores correctos
+      String fechaFormateada = DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(registro.fechaCorte);
+      String soapBody = '''
+        <?xml version="1.0" encoding="utf-8"?>
+        <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+          <soap:Body>
+            <W3Corte_UpdateCorte xmlns="http://activebs.net/">
+              <liNcoc>${registro.codigoUbicacion}</liNcoc> 
+              <liCemc>2</liCemc>
+              <ldFcor>$fechaFormateada</ldFcor>
+              <liPres>3</liPres>
+              <liCobc>${registro.codigoFijo}</liCobc>
+              <liLcor>${registro.valorMedidor}</liLcor>
+              <liNofn>${registro.usuarioRelacionado}</liNofn>
+              <lsAppName>FlutterApp</lsAppName>
+            </W3Corte_UpdateCorte>
+          </soap:Body>
+        </soap:Envelope>''';
+
+      print('Cuerpo SOAP: $soapBody');
+      try {
+        final response = await http.post(
+          Uri.parse('${servidor.baseURL}wsVarios/wsBS.asmx'),
+          headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'SOAPAction': '"http://activebs.net/W3Corte_UpdateCorte"',
+          },
+          body: soapBody,
+        );
+        
+        if (response.statusCode == 200) {
+          print('Registro enviado con éxito: ${registro.codigoUbicacion}');
+        } else {
+          print('Error al enviar el registro ${registro.codigoUbicacion}: ${response.statusCode}');
+        }
+      } catch (e) {
+        print('Error al enviar el registro ${registro.codigoUbicacion}: $e');
+      }
+
+    }
+  }
+
 }

@@ -1,4 +1,4 @@
-package com.example.gestion_asistencia_docente
+package com.example.sig_proyecto
 
 import io.flutter.embedding.android.FlutterActivity
 

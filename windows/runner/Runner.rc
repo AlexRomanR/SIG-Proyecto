@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "gestion_asistencia_docente" "\0"
+            VALUE "FileDescription", "sig_proyecto" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "gestion_asistencia_docente" "\0"
+            VALUE "InternalName", "sig_proyecto" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "gestion_asistencia_docente.exe" "\0"
-            VALUE "ProductName", "gestion_asistencia_docente" "\0"
+            VALUE "OriginalFilename", "sig_proyecto.exe" "\0"
+            VALUE "ProductName", "sig_proyecto" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

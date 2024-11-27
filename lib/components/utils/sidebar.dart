@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:gestion_asistencia_docente/screens/cortes/prueba.dart';
-import 'package:gestion_asistencia_docente/screens/cortes/registroCorteLista.dart';
+import 'package:sig_proyecto/screens/cortes/registroCorteLista.dart';
+import 'package:sig_proyecto/screens/cortes/prueba.dart';
+import 'package:sig_proyecto/screens/cortes/registroCorteLista.dart';
 
-import 'package:gestion_asistencia_docente/screens/asistencias/asistenciasView.dart';
-import 'package:gestion_asistencia_docente/screens/cortes/cortesDashBoard.dart';
-import 'package:gestion_asistencia_docente/screens/cortes/cortesRutasLocal.dart';
-import 'package:gestion_asistencia_docente/screens/licencias/licenciasView.dart';
-import 'package:gestion_asistencia_docente/screens/login/home_screen.dart';
-import 'package:gestion_asistencia_docente/screens/login/login_screen.dart';
-import 'package:gestion_asistencia_docente/screens/programacion_academica/programacion_academicaView.dart';
-import 'package:gestion_asistencia_docente/services/auth/auth_service.dart';
+import 'package:sig_proyecto/screens/asistencias/asistenciasView.dart';
+import 'package:sig_proyecto/screens/cortes/cortesDashBoard.dart';
+import 'package:sig_proyecto/screens/cortes/cortesRutasLocal.dart';
+import 'package:sig_proyecto/screens/licencias/licenciasView.dart';
+import 'package:sig_proyecto/screens/login/home_screen.dart';
+import 'package:sig_proyecto/screens/login/login_screen.dart';
+import 'package:sig_proyecto/screens/programacion_academica/programacion_academicaView.dart';
+import 'package:sig_proyecto/services/auth/auth_service.dart';
 import 'package:provider/provider.dart';
 
 class SideBar extends StatelessWidget {
@@ -18,7 +19,6 @@ class SideBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Drawer(
       child: Container(
         color: Colors.black, // Fondo negro para el drawer
@@ -145,7 +145,7 @@ class SideBar extends StatelessWidget {
               title: Text(
                 'LOGOUT',
                 style: TextStyle(
-                 color: const Color.fromARGB(255, 184, 184, 184),
+                  color: const Color.fromARGB(255, 184, 184, 184),
                   fontWeight: FontWeight.bold,
                 ),
               ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/models/rutas_sin_cortar.dart';
-import 'package:gestion_asistencia_docente/server.dart';
+import 'package:sig_proyecto/models/rutas_sin_cortar.dart';
+import 'package:sig_proyecto/server.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 
@@ -47,7 +47,8 @@ class RutasSinCortarService extends ChangeNotifier {
       } else {
         isLoading = false;
         notifyListeners();
-        throw Exception('Failed to load rutas sin cortar: ${response.statusCode}');
+        throw Exception(
+            'Failed to load rutas sin cortar: ${response.statusCode}');
       }
     } catch (e) {
       isLoading = false;

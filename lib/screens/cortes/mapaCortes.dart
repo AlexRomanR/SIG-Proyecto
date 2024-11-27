@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/models/rutas_sin_cortar.dart';
+import 'package:sig_proyecto/models/rutas_sin_cortar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:gestion_asistencia_docente/screens/cortes/registroCorte.dart';
+import 'package:sig_proyecto/screens/cortes/registroCorte.dart';
 
-class mapaCortes extends StatefulWidget {
+class mapaCortes extends StatelessWidget {
+
   const mapaCortes({super.key});
 
 
@@ -58,14 +59,18 @@ class mapaCortes extends StatefulWidget {
     final dLon = (lon2 - lon1) * (pi / 180);
 
     final a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(lat1 * (pi / 180)) * cos(lat2 * (pi / 180)) * sin(dLon / 2) * sin(dLon / 2);
+        cos(lat1 * (pi / 180)) *
+            cos(lat2 * (pi / 180)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
 
     final c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return R * c; // Distancia en kilómetros
   }
 
   // Construir la matriz de distancias entre todos los puntos (incluyendo oficina inicial y final)
-  List<List<double>> buildDistanceMatrix(List<RutasSinCortar> rutas, LatLng oficinaInicial, LatLng oficinaFinal) {
+  List<List<double>> buildDistanceMatrix(
+      List<RutasSinCortar> rutas, LatLng oficinaInicial, LatLng oficinaFinal) {
     final n = rutas.length + 2; // Incluye oficina inicial y final
     final matrix = List.generate(n, (_) => List.filled(n, double.infinity));
 
@@ -128,7 +133,8 @@ class mapaCortes extends StatefulWidget {
   }
 
   // Función para permutar las rutas y probar diferentes combinaciones
-  void _permute(List<int> route, int start, int end, List<List<double>> matrix, Function(List<int>) callback) {
+  void _permute(List<int> route, int start, int end, List<List<double>> matrix,
+      Function(List<int>) callback) {
     if (start == end) {
       callback(route);
       return;
@@ -156,7 +162,6 @@ class mapaCortes extends StatefulWidget {
     }
     return total;
   }
-
 
 class _MapaCortesState extends State<mapaCortes> {
   String apiKey = 'AIzaSyDPnYs5bEjFjnBD1WsUtuZ6NtQkOAGF1I0'; // Reemplaza con tu clave de API
@@ -231,6 +236,7 @@ class _MapaCortesState extends State<mapaCortes> {
                   MaterialPageRoute(
                     builder: (context) => registroCorte(ruta: point),
                   ),
+
                 ).then((_) {
                   _loadDataAndBuildRoute();
                 });
@@ -342,6 +348,7 @@ try {
     }
     return polyline;
   }
+
 
   Future<Set<String>> _loadCutPoints() async {
     final prefs = await SharedPreferences.getInstance();

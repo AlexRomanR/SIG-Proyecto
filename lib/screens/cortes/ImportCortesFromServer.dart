@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/services/api/rutasService.dart';
+import 'package:sig_proyecto/services/api/rutasService.dart';
 
-import 'package:gestion_asistencia_docente/services/api/rutas_sin_cortarService.dart';
+import 'package:sig_proyecto/services/api/rutas_sin_cortarService.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,11 +11,14 @@ class ImportCortesFromServerView extends StatefulWidget {
   const ImportCortesFromServerView({super.key});
 
   @override
-  State<ImportCortesFromServerView> createState() => _ImportCortesFromServerViewState();
+  State<ImportCortesFromServerView> createState() =>
+      _ImportCortesFromServerViewState();
 }
 
-class _ImportCortesFromServerViewState extends State<ImportCortesFromServerView> {
-  int? selectedRutaId; // ID de la ruta seleccionada (null para "Todas las rutas")
+class _ImportCortesFromServerViewState
+    extends State<ImportCortesFromServerView> {
+  int?
+      selectedRutaId; // ID de la ruta seleccionada (null para "Todas las rutas")
 
   @override
   void initState() {
@@ -27,7 +30,8 @@ class _ImportCortesFromServerViewState extends State<ImportCortesFromServerView>
 
   Future<void> _loadInitialData() async {
     final rutasService = Provider.of<RutasService>(context, listen: false);
-    final rutasSinCortarService = Provider.of<RutasSinCortarService>(context, listen: false);
+    final rutasSinCortarService =
+        Provider.of<RutasSinCortarService>(context, listen: false);
 
     try {
       // Cargar todas las rutas para el selector
@@ -40,9 +44,11 @@ class _ImportCortesFromServerViewState extends State<ImportCortesFromServerView>
   }
 
   Future<void> _filterRutasSinCortar(int? rutaId) async {
-    final rutasSinCortarService = Provider.of<RutasSinCortarService>(context, listen: false);
+    final rutasSinCortarService =
+        Provider.of<RutasSinCortarService>(context, listen: false);
     await rutasSinCortarService.loadRutasSinCortar(rutaId: rutaId);
   }
+
 
   Future<void> _saveRutasToLocal() async { 
     final rutasSinCortarService = Provider.of<RutasSinCortarService>(context, listen: false);
@@ -50,7 +56,8 @@ class _ImportCortesFromServerViewState extends State<ImportCortesFromServerView>
     try {
       final prefs = await SharedPreferences.getInstance();
       // Convertir rutas a JSON y guardar
-      final rutasJson = jsonEncode(rutasSinCortarService.rutas.map((ruta) => ruta.toJson()).toList());
+      final rutasJson = jsonEncode(
+          rutasSinCortarService.rutas.map((ruta) => ruta.toJson()).toList());
       await prefs.setString('saved_rutas', rutasJson);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -69,8 +76,6 @@ class _ImportCortesFromServerViewState extends State<ImportCortesFromServerView>
       );
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +123,8 @@ class _ImportCortesFromServerViewState extends State<ImportCortesFromServerView>
                     items: [
                       DropdownMenuItem<int?>(
                         value: null,
-                        child: Text("Todas las rutas", style: TextStyle(color: Colors.white)),
+                        child: Text("Todas las rutas",
+                            style: TextStyle(color: Colors.white)),
                       ),
                       ...rutasService.rutas.map((ruta) {
                         return DropdownMenuItem<int?>(
@@ -135,7 +141,8 @@ class _ImportCortesFromServerViewState extends State<ImportCortesFromServerView>
                         selectedRutaId = value; // Actualizar la selección
                       });
                       print(value);
-                      _filterRutasSinCortar(value); // Filtrar las rutas sin cortar según la selección
+                      _filterRutasSinCortar(
+                          value); // Filtrar las rutas sin cortar según la selección
                     },
                   ),
                 ),
@@ -149,8 +156,10 @@ class _ImportCortesFromServerViewState extends State<ImportCortesFromServerView>
                       return Card(
                         elevation: 4,
                         color: Color.fromARGB(255, 29, 29, 29),
-                        margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         child: ListTile(
                           leading: CircleAvatar(
                             radius: 25,
@@ -192,7 +201,8 @@ class _ImportCortesFromServerViewState extends State<ImportCortesFromServerView>
                               ),
                             ],
                           ),
-                          trailing: Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+                          trailing: Icon(Icons.arrow_forward_ios,
+                              color: Colors.white70, size: 16),
                         ),
                       );
                     },

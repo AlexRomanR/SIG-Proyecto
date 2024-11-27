@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/models/licencias.dart';
+import 'package:sig_proyecto/models/licencias.dart';
 import 'package:http/http.dart' as http;
-import 'package:gestion_asistencia_docente/server.dart';
+import 'package:sig_proyecto/server.dart';
 
 class LicenciasService extends ChangeNotifier {
   late List<Licencias> licencias = [];
@@ -26,9 +26,8 @@ class LicenciasService extends ChangeNotifier {
       final List<dynamic> licenciasMap =
           json.decode(utf8.decode(resp.bodyBytes));
 
-      licencias = licenciasMap
-          .map((element) => Licencias.fromMap(element))
-          .toList();
+      licencias =
+          licenciasMap.map((element) => Licencias.fromMap(element)).toList();
 
       isLoading = false;
       notifyListeners();
@@ -39,6 +38,4 @@ class LicenciasService extends ChangeNotifier {
       throw Exception('Failed to load Asistencias');
     }
   }
-
-
 }

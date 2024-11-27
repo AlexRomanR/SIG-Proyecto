@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/screens/programacion_academica/programacion_academicaView.dart';
-import 'package:gestion_asistencia_docente/services/auth/auth_service.dart';
-import 'package:gestion_asistencia_docente/services/server.dart';
+import 'package:sig_proyecto/screens/programacion_academica/programacion_academicaView.dart';
+import 'package:sig_proyecto/services/auth/auth_service.dart';
+import 'package:sig_proyecto/services/server.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_asistencia_docente/components/utils/splash_screen.dart';
-import 'package:gestion_asistencia_docente/screens/login/home_screen.dart';
-import 'package:gestion_asistencia_docente/screens/login/login_screen.dart';
-import 'package:gestion_asistencia_docente/services/api/asistenciasService.dart';
-import 'package:gestion_asistencia_docente/services/api/licenciasService.dart';
-import 'package:gestion_asistencia_docente/services/api/programacion_academicaService.dart';
-import 'package:gestion_asistencia_docente/services/api/rutasService.dart';
-import 'package:gestion_asistencia_docente/services/api/rutas_sin_cortarService.dart';
-import 'package:gestion_asistencia_docente/services/auth/auth_service.dart';
+import 'package:sig_proyecto/components/utils/splash_screen.dart';
+import 'package:sig_proyecto/screens/login/home_screen.dart';
+import 'package:sig_proyecto/screens/login/login_screen.dart';
+import 'package:sig_proyecto/services/api/asistenciasService.dart';
+import 'package:sig_proyecto/services/api/licenciasService.dart';
+import 'package:sig_proyecto/services/api/programacion_academicaService.dart';
+import 'package:sig_proyecto/services/api/rutasService.dart';
+import 'package:sig_proyecto/services/api/rutas_sin_cortarService.dart';
+import 'package:sig_proyecto/services/auth/auth_service.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -23,18 +23,17 @@ class AppState extends StatefulWidget {
 
 class _AppStateState extends State<AppState> {
   @override
-  Widget build(BuildContext   context) {
+  Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: ( _ ) => AuthService()),
-        ChangeNotifierProvider(create: ( _ ) => ProgramacionAcademicaService()),
-        ChangeNotifierProvider(create: ( _ ) => AsistenciasService()),
-        ChangeNotifierProvider(create: ( _ ) => LicenciasService()),
-        ChangeNotifierProvider(create: ( _ ) => RutasSinCortarService()),
-        ChangeNotifierProvider(create: ( _ ) => RutasService()),
+        ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => ProgramacionAcademicaService()),
+        ChangeNotifierProvider(create: (_) => AsistenciasService()),
+        ChangeNotifierProvider(create: (_) => LicenciasService()),
+        ChangeNotifierProvider(create: (_) => RutasSinCortarService()),
+        ChangeNotifierProvider(create: (_) => RutasService()),
 
-
-     //   ChangeNotifierProvider(create: ( _ ) => VehicleService()),
+        //   ChangeNotifierProvider(create: ( _ ) => VehicleService()),
       ],
       child: const MyApp(),
     );
@@ -44,30 +43,20 @@ class _AppStateState extends State<AppState> {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
-  
   Widget build(BuildContext context) {
     return MaterialApp(
-     debugShowCheckedModeBanner: false,
-     title: 'Proyecto SI2',
-     initialRoute: 'splash',
-     routes: {
-      '/':  ( _ ) =>HomeScreen(),
-      'login':  ( _ ) =>LoginScreen(),
-      'splash':  ( _ ) =>SplashScreen()
-     },
-     theme: ThemeData.light().copyWith(
-      scaffoldBackgroundColor: const Color.fromARGB(255, 14, 13, 12),
-      appBarTheme: const AppBarTheme(
-        elevation: 0,
-        color: Color.fromARGB(255, 0, 0, 0)
-      )
-     ),
-     
+      debugShowCheckedModeBanner: false,
+      title: 'Proyecto SI2',
+      initialRoute: 'splash',
+      routes: {
+        '/': (_) => HomeScreen(),
+        'login': (_) => LoginScreen(),
+        'splash': (_) => SplashScreen()
+      },
+      theme: ThemeData.light().copyWith(
+          scaffoldBackgroundColor: const Color.fromARGB(255, 14, 13, 12),
+          appBarTheme: const AppBarTheme(
+              elevation: 0, color: Color.fromARGB(255, 0, 0, 0))),
     );
   }
-
-
 }
-
-
-

@@ -7,10 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sig_proyecto/screens/cortes/registroCorte.dart';
 
-class mapaCortes extends StatelessWidget {
+class mapaCortes extends StatefulWidget {
 
   const mapaCortes({super.key});
-
 
   @override
   _MapaCortesState createState() => _MapaCortesState();

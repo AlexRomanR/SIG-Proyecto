@@ -117,7 +117,7 @@ class RutasService extends ChangeNotifier {
           Uri.parse('${servidor.baseURL}wsVarios/wsBS.asmx'),
           headers: {
             'Content-Type': 'text/xml; charset=utf-8',
-            'SOAPAction': '"http://activebs.net/W3Corte_UpdateCorte"',
+            'SOAPAction': 'http://activebs.net/W3Corte_UpdateCorte',
           },
           body: soapBody,
         );

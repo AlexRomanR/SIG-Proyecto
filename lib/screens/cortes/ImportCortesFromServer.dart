@@ -49,9 +49,9 @@ class _ImportCortesFromServerViewState
     await rutasSinCortarService.loadRutasSinCortar(rutaId: rutaId);
   }
 
-  Future<void> _saveRutasToLocal() async {
-    final rutasSinCortarService =
-        Provider.of<RutasSinCortarService>(context, listen: false);
+
+  Future<void> _saveRutasToLocal() async { 
+    final rutasSinCortarService = Provider.of<RutasSinCortarService>(context, listen: false);
 
     try {
       final prefs = await SharedPreferences.getInstance();

@@ -47,13 +47,22 @@ class _RegistroCorteScreenState extends State<registroCorte> {
       // Guardar la lista actualizada en memoria
       await prefs.setString('registros_corte', jsonEncode(registrosPrevios));
 
-      // Mostrar mensaje de éxito
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('¡Registro guardado exitosamente!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+
+    // **Guardar el punto como cortado**
+    List<String> puntosCortados = prefs.getStringList('puntos_cortados') ?? [];
+    String codigoUbicacionStr = widget.ruta.bscocNcoc.toString();
+    if (!puntosCortados.contains(codigoUbicacionStr)) {
+      puntosCortados.add(codigoUbicacionStr);
+      await prefs.setStringList('puntos_cortados', puntosCortados);
+    }
+
+    // Mostrar mensaje de éxito
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('¡Registro guardado exitosamente!'),
+        backgroundColor: Colors.green,
+      ),
+    );
 
       // Limpiar el controlador de texto
       setState(() {

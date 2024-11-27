@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sig_proyecto/screens/cortes/registroCorteLista.dart';
+import 'package:sig_proyecto/screens/cortes/prueba.dart';
+import 'package:sig_proyecto/screens/cortes/registroCorteLista.dart';
 
 import 'package:sig_proyecto/screens/asistencias/asistenciasView.dart';
 import 'package:sig_proyecto/screens/cortes/cortesDashBoard.dart';
@@ -78,6 +80,20 @@ class SideBar extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const CortesDashboardView(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: Text(
+                'Cortes',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Prueba(),
                   ),
                 );
               },

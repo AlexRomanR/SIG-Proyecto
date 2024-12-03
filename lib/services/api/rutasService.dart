@@ -95,21 +95,21 @@ class RutasService extends ChangeNotifier {
       // Construir el cuerpo SOAP con los valores correctos
       String fechaFormateada = DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(registro.fechaCorte);
       String soapBody = '''
-        <?xml version="1.0" encoding="utf-8"?>
-        <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-          <soap:Body>
-            <W3Corte_UpdateCorte xmlns="http://activebs.net/">
-              <liNcoc>${registro.codigoUbicacion}</liNcoc> 
-              <liCemc>2</liCemc>
-              <ldFcor>$fechaFormateada</ldFcor>
-              <liPres>3</liPres>
-              <liCobc>${registro.codigoFijo}</liCobc>
-              <liLcor>${registro.valorMedidor}</liLcor>
-              <liNofn>${registro.usuarioRelacionado}</liNofn>
-              <lsAppName>FlutterApp</lsAppName>
-            </W3Corte_UpdateCorte>
-          </soap:Body>
-        </soap:Envelope>''';
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <W3Corte_UpdateCorte xmlns="http://activebs.net/">
+      <liNcoc>${registro.codigoUbicacion}</liNcoc> 
+      <liCemc>0</liCemc>
+      <ldFcor>$fechaFormateada</ldFcor>
+      <liPres>0</liPres>
+      <liCobc>${registro.codigoFijo}</liCobc>
+      <liLcor>${registro.valorMedidor}</liLcor>
+      <liNofn>1</liNofn>
+      <lsAppName>FlutterApp</lsAppName>
+    </W3Corte_UpdateCorte>
+  </soap:Body>
+</soap:Envelope>''';
 
       print('Cuerpo SOAP: $soapBody');
       try {
@@ -123,6 +123,7 @@ class RutasService extends ChangeNotifier {
         );
         
         if (response.statusCode == 200) {
+          print('Solicitud exitosa: ${response.body}');
           print('Registro enviado con éxito: ${registro.codigoUbicacion}');
         } else {
           print('Error al enviar el registro ${registro.codigoUbicacion}: ${response.statusCode}');

@@ -57,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 140, // Alto deseado para el logo
                         ),
                         Text(
-                          'BIENVENIDO A UNY-SYS',
+                          'BIENVENIDO A oosiv R.L.',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,

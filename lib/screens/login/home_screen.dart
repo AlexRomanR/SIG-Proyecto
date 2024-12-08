@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Sistema para el corte planificado de servicios públicos\nOOSIV R.L.',
+                  'Sistema para el corte planificado de servicios públicos\nCOOSIV R.L.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 24,

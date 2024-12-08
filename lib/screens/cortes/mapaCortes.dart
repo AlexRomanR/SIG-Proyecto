@@ -6,6 +6,10 @@ import 'package:sig_proyecto/models/rutas_sin_cortar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sig_proyecto/screens/cortes/registroCorte.dart';
+import 'package:flutter/services.dart';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'package:sig_proyecto/models/registro_corte.dart';
 
 class mapaCortes extends StatefulWidget {
 
@@ -51,63 +55,70 @@ class mapaCortes extends StatefulWidget {
     return [];
   }
 
-  // Fórmula de Haversine para calcular la distancia entre dos puntos geográficos
-  double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
-    const R = 6371; // Radio de la Tierra en km
-    final dLat = (lat2 - lat1) * (pi / 180);
-    final dLon = (lon2 - lon1) * (pi / 180);
+  // Function to get distance from Directions API
+  Future<double> getDirectionsDistance(LatLng origin, LatLng destination) async {
+    final String apiKey = 'AIzaSyDPnYs5bEjFjnBD1WsUtuZ6NtQkOAGF1I0';
+    final url = Uri.parse(
+      'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey'
+    );
 
-    final a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(lat1 * (pi / 180)) *
-            cos(lat2 * (pi / 180)) *
-            sin(dLon / 2) *
-            sin(dLon / 2);
-
-    final c = 2 * atan2(sqrt(a), sqrt(1 - a));
-    return R * c; // Distancia en kilómetros
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['status'] == 'OK') {
+          // Distance comes in meters, convert to kilometers
+          
+          return data['routes'][0]['legs'][0]['distance']['value'] / 1000.0;
+        }
+      }
+      return double.infinity;
+    } catch (e) {
+      return double.infinity;
+    }
   }
 
-  // Construir la matriz de distancias entre todos los puntos (incluyendo oficina inicial y final)
-  List<List<double>> buildDistanceMatrix(
-      List<RutasSinCortar> rutas, LatLng oficinaInicial, LatLng oficinaFinal) {
-    final n = rutas.length + 2; // Incluye oficina inicial y final
+  // Modified matrix building function
+  Future<List<List<double>>> buildDistanceMatrix(
+      List<RutasSinCortar> rutas, LatLng oficinaInicial, LatLng oficinaFinal) async {
+    final n = rutas.length + 2;
     final matrix = List.generate(n, (_) => List.filled(n, double.infinity));
 
-    // Distancias entre puntos intermedios
-    for (int i = 0; i < rutas.length; i++) {
-      for (int j = 0; j < rutas.length; j++) {
-        if (i != j) {
-          matrix[i + 1][j + 1] = haversineDistance(
-            rutas[i].bscntlati,
-            rutas[i].bscntlogi,
-            rutas[j].bscntlati,
-            rutas[j].bscntlogi,
-          );
+    // Get all distances using Directions API
+    for (int i = 0; i < n; i++) {
+      for (int j = i + 1; j < n; j++) {
+        LatLng origin;
+        LatLng destination;
+
+        // Handle start point (oficinaInicial)
+        if (i == 0) {
+          origin = oficinaInicial;
+          if (j == n - 1) {
+            // Skip direct path from start to end
+            continue;
+          }
+          destination = LatLng(rutas[j - 1].bscntlati, rutas[j - 1].bscntlogi);
         }
+        // Handle end point (oficinaFinal)
+        else if (j == n - 1) {
+          destination = oficinaFinal;
+          origin = LatLng(rutas[i - 1].bscntlati, rutas[i - 1].bscntlogi);
+        }
+        // Handle intermediate points
+        else {
+          origin = LatLng(rutas[i - 1].bscntlati, rutas[i - 1].bscntlogi);
+          destination = LatLng(rutas[j - 1].bscntlati, rutas[j - 1].bscntlogi);
+        }
+
+        final distance = await getDirectionsDistance(origin, destination);
+        matrix[i][j] = distance;
+        matrix[j][i] = distance; // Matrix is symmetric
       }
     }
 
-    // Distancias de oficina inicial a los puntos intermedios
-    for (int i = 0; i < rutas.length; i++) {
-      matrix[0][i + 1] = haversineDistance(
-        oficinaInicial.latitude,
-        oficinaInicial.longitude,
-        rutas[i].bscntlati,
-        rutas[i].bscntlogi,
-      );
-      matrix[i + 1][0] = matrix[0][i + 1]; // Simetría
-    }
-
-    // Distancias de los puntos intermedios a oficina final
-    for (int i = 0; i < rutas.length; i++) {
-      matrix[i + 1][n - 1] = haversineDistance(
-        rutas[i].bscntlati,
-        rutas[i].bscntlogi,
-        oficinaFinal.latitude,
-        oficinaFinal.longitude,
-      );
-      matrix[n - 1][i + 1] = matrix[i + 1][n - 1]; // Simetría
-    }
+    // Force infinity for direct start-to-end path
+    matrix[0][n - 1] = double.infinity;
+    matrix[n - 1][0] = double.infinity;
 
     return matrix;
   }
@@ -163,7 +174,7 @@ class mapaCortes extends StatefulWidget {
   }
 
 class _MapaCortesState extends State<mapaCortes> {
-  String apiKey = 'AIzaSyDPnYs5bEjFjnBD1WsUtuZ6NtQkOAGF1I0'; // Reemplaza con tu clave de API
+  final String apiKey = 'AIzaSyDPnYs5bEjFjnBD1WsUtuZ6NtQkOAGF1I0';
   Set<Marker> markers = {};
   Set<Polyline> polylines = {};
   String estimatedTime = '';
@@ -171,26 +182,28 @@ class _MapaCortesState extends State<mapaCortes> {
   String totalPoints = '';
   String cutPoints = '0';
   LatLng oficinaInicial = LatLng(-16.3776, -60.9605);
+  List<RegistroCorte> registros = [];
 
   @override
   void initState() {
     super.initState();
     _loadDataAndBuildRoute();
+    _cargarRegistros();
+    print(registros);
   }
 
   Future<void> _loadDataAndBuildRoute() async {
     final rutas = await _loadSavedRutas();
-    final cutPoints = await _loadCutPoints(); // Cargar puntos cortados
+    final cutPoints = await _loadCutPoints();
     if (rutas.isEmpty) {
       return;
     }
 
     final rutasLimitadas = rutas.take(10).toList();
-
     final oficinaInicial = LatLng(-16.3776, -60.9605);
     final oficinaFinal = LatLng(-16.3850, -60.9651);
 
-    final distanceMatrix = buildDistanceMatrix(rutasLimitadas, oficinaInicial, oficinaFinal);
+    final distanceMatrix = await buildDistanceMatrix(rutasLimitadas, oficinaInicial, oficinaFinal);
     final bestRoute = tsp(distanceMatrix);
 
     List<LatLng> routeCoordinates = [];
@@ -203,43 +216,73 @@ class _MapaCortesState extends State<mapaCortes> {
 
     routeCoordinates.add(oficinaFinal);
 
+    List<RutasSinCortar> pointsMap = [];
+    for (int i = 1; i < bestRoute.length - 1; i++) {
+      final point = rutasLimitadas[bestRoute[i] - 1];
+      pointsMap.add(point);
+    }
+
     Set<Marker> markersTemp = {};
+    
+    // Cargar imágenes para marcadores
+    BitmapDescriptor startIcon = await createBitmapDescriptor('assets/utils/start.png');
+    BitmapDescriptor endIcon = await createBitmapDescriptor('assets/utils/end.png');
+
     markersTemp.add(Marker(
       markerId: MarkerId('oficina_inicial'),
       position: oficinaInicial,
       infoWindow: InfoWindow(title: 'Oficina Inicial'),
+      icon: startIcon,
     ));
 
     markersTemp.add(Marker(
       markerId: MarkerId('oficina_final'),
       position: oficinaFinal,
       infoWindow: InfoWindow(title: 'Oficina Final'),
+      icon: endIcon,
     ));
 
-    for (int i = 0; i < rutasLimitadas.length; i++) {
-      final point = rutasLimitadas[i];
-      bool isCut = cutPoints.contains(point.bscocNcoc.toString());
+    for (int i = 0; i < pointsMap.length; i++) {
+      final point = pointsMap[i];
+     
+      bool isCut = registros.any((registro) => registro.codigoUbicacion == point.bscocNcoc);
+      bool hasValue = false;
+      
+      if (isCut) {
+        // Get the specific registro for this point
+        final registro = registros.firstWhere(
+          (registro) => registro.codigoUbicacion == point.bscocNcoc,
+          orElse: () => RegistroCorte(
+            codigoUbicacion: 0,
+            usuarioRelacionado: 0,
+            codigoFijo: 0,
+            nombre: '',
+            medidorSerie: '',
+            numeroMedidor: '',
+            fechaCorte: DateTime.now(),
+          ),
+        );
+        
+        // Check if it has valorMedidor (not null and not empty)
+        hasValue = registro.valorMedidor != null && registro.valorMedidor!.isNotEmpty;
+        print('Point ${point.bscocNcoc} - hasValue: $hasValue - valorMedidor: ${registro.valorMedidor}');
+      }
   
       markersTemp.add(Marker(
         markerId: MarkerId('punto_${i + 1}'),
         position: LatLng(point.bscntlati, point.bscntlogi),
         infoWindow: InfoWindow(title: 'Punto ${i + 1}'),
-        icon: isCut
-            ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen)
-            : BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-        onTap: isCut
-            ? null
-            : () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => registroCorte(ruta: point),
-                  ),
-
-                ).then((_) {
-                  _loadDataAndBuildRoute();
-                });
-              },
+        icon: await createCustomMarkerWithNumber(i + 1, isCut, hasValue),
+        onTap: isCut ? null : () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => registroCorte(ruta: point),
+            ),
+          ).then((_) {
+            _loadDataAndBuildRoute();
+          });
+        },
       ));
     }
 
@@ -249,7 +292,7 @@ class _MapaCortesState extends State<mapaCortes> {
     }
     
     // Agregar 'optimize:true' para que Google optimice el orden de los waypoints
-    final waypointsString = 'optimize:true|' + waypoints.join('|');
+    final waypointsString = 'optimize:false|' + waypoints.join('|');
 
     final url = Uri.parse(
         'https://maps.googleapis.com/maps/api/directions/json?origin=${routeCoordinates.first.latitude},${routeCoordinates.first.longitude}&destination=${routeCoordinates.last.latitude},${routeCoordinates.last.longitude}&waypoints=$waypointsString&key=$apiKey');
@@ -355,6 +398,73 @@ try {
     return cutPoints.toSet();
   }
 
+  Future<void> _cargarRegistros() async {
+    final prefs = await SharedPreferences.getInstance();
+    final registrosJson = prefs.getString('registros_corte') ?? '[]';
+    final List<dynamic> registrosMap = jsonDecode(registrosJson);
+
+    setState(() {
+      registros =
+          registrosMap.map((map) => RegistroCorte.fromMap(map)).toList();
+    });
+  }
+
+
+
+  Future<BitmapDescriptor> createBitmapDescriptor(String assetPath) async {
+    final ByteData byteData = await rootBundle.load(assetPath);
+    final Uint8List uint8List = byteData.buffer.asUint8List();
+    final ui.Codec codec = await ui.instantiateImageCodec(uint8List, targetWidth: 100, targetHeight: 100);
+    final ui.FrameInfo frameInfo = await codec.getNextFrame();
+    final ByteData? resizedByteData = await frameInfo.image.toByteData(format: ui.ImageByteFormat.png);
+    final Uint8List resizedUint8List = resizedByteData!.buffer.asUint8List();
+    return BitmapDescriptor.fromBytes(resizedUint8List);
+  }
+
+  Future<BitmapDescriptor> createCustomMarkerWithNumber(int number, bool isCut, bool hasValue) async {
+    // Create a TextPainter to draw the number
+    final TextPainter textPainter = TextPainter(
+      text: TextSpan(
+        text: number.toString(),
+        style: const TextStyle(
+          fontSize: 40,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+
+    // Create a picture recorder and canvas
+    final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(pictureRecorder);
+
+    // Draw the circle background
+    final Paint circlePaint = Paint()..color = isCut 
+        ? (hasValue ? Colors.green : Colors.orange)  // If cut, check if has value
+        : Colors.red;                                // If not cut, red
+    canvas.drawCircle(
+      Offset(30, 30),  // Center of the circle
+      30,              // Radius of the circle
+      circlePaint,
+    );
+
+    // Draw the number in the center of the circle
+    textPainter.paint(
+      canvas,
+      Offset(
+        30 - textPainter.width / 2,
+        30 - textPainter.height / 2,
+      ),
+    );
+
+    // Convert to image
+    final ui.Image image = await pictureRecorder.endRecording().toImage(60, 60);
+    final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    
+    return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -372,7 +482,7 @@ try {
                   child: GoogleMap(
                     initialCameraPosition: CameraPosition(
                       target: oficinaInicial,
-                      zoom: 13,
+                      zoom: 20,
                     ),
                     markers: markers,
                     polylines: polylines,

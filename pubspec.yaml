@@ -40,6 +40,9 @@ flutter:
     - assets/utils/grijo.jpg 
     - assets/utils/login.png
     - assets/utils/logo.png
+    - assets/utils/start.png
+    - assets/utils/end.png
+    - assets/utils/intermediate.png
     
 
 

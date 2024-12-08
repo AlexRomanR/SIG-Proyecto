@@ -125,10 +125,17 @@ class _ListaRegistrosScreenState extends State<ListaRegistrosScreen> {
                                     fontSize: 12,
                                   ),
                                 ),
-                                Text(
+                                if (registro.valorMedidor != null) Text(
                                   '💧 Valor Medidor: ${registro.valorMedidor}',
                                   style: TextStyle(
                                     color: Colors.lightGreen,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                if (registro.observacion != null) Text(
+                                  '📝 Observación: ${registro.observacion}',
+                                  style: TextStyle(
+                                    color: Colors.redAccent,
                                     fontSize: 12,
                                   ),
                                 ),

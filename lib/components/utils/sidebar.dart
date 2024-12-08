@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sig_proyecto/screens/cortes/registroCorteLista.dart';
-import 'package:sig_proyecto/screens/cortes/prueba.dart';
 import 'package:sig_proyecto/screens/cortes/registroCorteLista.dart';
 
 import 'package:sig_proyecto/screens/asistencias/asistenciasView.dart';
@@ -86,20 +85,6 @@ class SideBar extends StatelessWidget {
             ),
             ListTile(
               title: Text(
-                'Cortes',
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Prueba(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              title: Text(
                 'Rutas guardadas localmente (eliminar luego)',
                 style: TextStyle(color: Colors.white),
               ),
@@ -124,20 +109,6 @@ class SideBar extends StatelessWidget {
                 //     builder: (context) => const LicenciasView(),
                 //   ),
                 // );
-              },
-            ),
-            ListTile(
-              title: Text(
-                'Lista Registros',
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ListaRegistrosScreen(),
-                  ),
-                );
               },
             ),
             Divider(color: Colors.white, thickness: 1),

@@ -5,7 +5,8 @@ class RegistroCorte {
   final String nombre;
   final String medidorSerie;
   final String numeroMedidor;
-  final String valorMedidor;
+  final String? valorMedidor;
+  final String? observacion;
   final DateTime fechaCorte; 
 
   RegistroCorte({
@@ -15,7 +16,8 @@ class RegistroCorte {
     required this.nombre,
     required this.medidorSerie,
     required this.numeroMedidor,
-    required this.valorMedidor,
+    this.valorMedidor,
+    this.observacion,
     required this.fechaCorte,  
   });
 
@@ -29,6 +31,7 @@ class RegistroCorte {
       'medidorSerie': medidorSerie,
       'numeroMedidor': numeroMedidor,
       'valorMedidor': valorMedidor,
+      'observacion': observacion,
       'fechaCorte': fechaCorte.toIso8601String(),  
     };
   }
@@ -43,6 +46,7 @@ class RegistroCorte {
       medidorSerie: map['medidorSerie'],
       numeroMedidor: map['numeroMedidor'],
       valorMedidor: map['valorMedidor'],
+      observacion: map['observacion'],
       fechaCorte: DateTime.parse(map['fechaCorte']),  
     );
   }

@@ -15,12 +15,12 @@ class registroCorte extends StatefulWidget {
 }
 
 class _RegistroCorteScreenState extends State<registroCorte> {
-  final TextEditingController _valorMedidorController = TextEditingController();
+  final TextEditingController _textController = TextEditingController();
+  String _selectedOption = 'Ninguna';  // Default value
 
   void _guardarRegistro() async {
-    final valorMedidor = _valorMedidorController.text.isEmpty
-        ? '-1' // Si el campo está vacío, asigna '-1'
-        : _valorMedidorController.text;
+    final String? valorMedidor = _selectedOption == 'Ninguna' ? _textController.text : null;
+    final String? observacion = _selectedOption == 'Observacion' ? _textController.text : null;
 
     final nuevoRegistro = RegistroCorte(
       codigoUbicacion: widget.ruta.bscocNcoc,
@@ -30,6 +30,7 @@ class _RegistroCorteScreenState extends State<registroCorte> {
       medidorSerie: widget.ruta.bsmednser,
       numeroMedidor: widget.ruta.bsmedNume,
       valorMedidor: valorMedidor,
+      observacion: observacion,
       fechaCorte: DateTime.now(),
     );
 
@@ -66,7 +67,7 @@ class _RegistroCorteScreenState extends State<registroCorte> {
 
       // Limpiar el controlador de texto
       setState(() {
-        _valorMedidorController.clear();
+        _textController.clear();
       });
     } catch (e) {
       print('Error al guardar el registro: $e');
@@ -80,8 +81,8 @@ class _RegistroCorteScreenState extends State<registroCorte> {
   }
 
   void _irAlPlano() {
-    // Navegar a la pantalla del plano
-    Navigator.pop(context);
+    // Navegar a la pantalla del plano y forzar recarga
+    Navigator.pop(context, true);
   }
 
   void _irMenuPrincipal() {
@@ -152,12 +153,32 @@ class _RegistroCorteScreenState extends State<registroCorte> {
               ),
             ),
             const SizedBox(height: 10),
+            DropdownButton<String>(
+              value: _selectedOption,
+              dropdownColor: Colors.black87,
+              style: TextStyle(color: Colors.white),
+              items: ['Ninguna', 'Observacion'].map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedOption = newValue!;
+                  _textController.clear();
+                });
+              },
+            ),
+            const SizedBox(height: 10),
             TextField(
-              controller: _valorMedidorController,
+              controller: _textController,
               decoration: InputDecoration(
-                labelText: 'Valor del Medidor',
+                labelText: _selectedOption == 'Ninguna' ? 'Valor del Medidor' : 'Observación',
                 labelStyle: TextStyle(color: Colors.white),
-                hintText: 'Ingrese el valor del medidor',
+                hintText: _selectedOption == 'Ninguna' 
+                    ? 'Ingrese el valor del medidor'
+                    : 'Ingrese la observación',
                 hintStyle: TextStyle(color: Colors.grey),
                 filled: true,
                 fillColor: Colors.black26,

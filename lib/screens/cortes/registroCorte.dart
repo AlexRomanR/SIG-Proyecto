@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:sig_proyecto/models/rutas_sin_cortar.dart';
 import 'package:sig_proyecto/screens/login/home_screen.dart';
 import 'package:sig_proyecto/models/registro_corte.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image_picker/image_picker.dart'; // Importar image_picker
 
 class registroCorte extends StatefulWidget {
   final RutasSinCortar ruta;
@@ -16,11 +18,27 @@ class registroCorte extends StatefulWidget {
 
 class _RegistroCorteScreenState extends State<registroCorte> {
   final TextEditingController _textController = TextEditingController();
-  String _selectedOption = 'Ninguna';  // Default value
+  String _selectedOption = 'Ninguna'; // Default value
+  String? _fotoBase64; // Variable para guardar la foto en base64
+  File? _fotoFile; // Para mostrar la foto antes de guardarla
+
+  Future<void> _tomarFoto() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? foto = await picker.pickImage(source: ImageSource.camera);
+    if (foto != null) {
+      final bytes = await foto.readAsBytes();
+      setState(() {
+        _fotoBase64 = base64Encode(bytes);
+        _fotoFile = File(foto.path);
+      });
+    }
+  }
 
   void _guardarRegistro() async {
-    final String? valorMedidor = _selectedOption == 'Ninguna' ? _textController.text : null;
-    final String? observacion = _selectedOption == 'Observacion' ? _textController.text : null;
+    final String? valorMedidor =
+        _selectedOption == 'Ninguna' ? _textController.text : null;
+    final String? observacion =
+        _selectedOption == 'Observacion' ? _textController.text : null;
 
     final nuevoRegistro = RegistroCorte(
       codigoUbicacion: widget.ruta.bscocNcoc,
@@ -32,6 +50,7 @@ class _RegistroCorteScreenState extends State<registroCorte> {
       valorMedidor: valorMedidor,
       observacion: observacion,
       fechaCorte: DateTime.now(),
+      fotoBase64: _fotoBase64, // Guardamos la foto
     );
 
     try {
@@ -47,28 +66,25 @@ class _RegistroCorteScreenState extends State<registroCorte> {
 
       // Guardar la lista actualizada en memoria
       await prefs.setString('registros_corte', jsonEncode(registrosPrevios));
+    
+      List<String> puntosCortados = prefs.getStringList('puntos_cortados') ?? [];
+      // **Guardar el punto como cortado**
+      String codigoUbicacionStr = widget.ruta.bscocNcoc.toString();
+      if (!puntosCortados.contains(codigoUbicacionStr)) {
+        puntosCortados.add(codigoUbicacionStr);
+        await prefs.setStringList('puntos_cortados', puntosCortados);
+      }
 
-
-    // **Guardar el punto como cortado**
-    List<String> puntosCortados = prefs.getStringList('puntos_cortados') ?? [];
-    String codigoUbicacionStr = widget.ruta.bscocNcoc.toString();
-    if (!puntosCortados.contains(codigoUbicacionStr)) {
-      puntosCortados.add(codigoUbicacionStr);
-      await prefs.setStringList('puntos_cortados', puntosCortados);
-    }
-
-    // Mostrar mensaje de éxito
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('¡Registro guardado exitosamente!'),
-        backgroundColor: Colors.green,
-      ),
-    );
+      // Mostrar mensaje de éxito
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('¡Registro guardado exitosamente!'),
+          backgroundColor: Colors.green,
+        ),
+      );
 
       // Limpiar el controlador de texto
-      setState(() {
-        _textController.clear();
-      });
+      setState(() {});
     } catch (e) {
       print('Error al guardar el registro: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -99,6 +115,13 @@ class _RegistroCorteScreenState extends State<registroCorte> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon:
+              const Icon(Icons.arrow_back, color: Colors.white), // Botón blanco
+          onPressed: () {
+            _irAlPlano(); // Llama a tu lógica personalizada
+          },
+        ),
         title: const Text(
           'Registro de Corte',
           style: TextStyle(color: Colors.white),
@@ -109,8 +132,7 @@ class _RegistroCorteScreenState extends State<registroCorte> {
       backgroundColor: Colors.black,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: [
             // Información de la ruta
             Text(
@@ -142,6 +164,38 @@ class _RegistroCorteScreenState extends State<registroCorte> {
               '🔢 Número de Medidor: ${widget.ruta.bsmedNume}',
               style: TextStyle(color: Colors.yellowAccent, fontSize: 16),
             ),
+            if (_fotoFile != null) ...[
+              const SizedBox(height: 20),
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      '📷 Foto', // Emoji que representa una foto
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 255, 255, 255),
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center, // Centra el texto
+                    ),
+                    const SizedBox(
+                        height: 10), // Espaciado entre el texto y la imagen
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: _fotoFile !=
+                              null // Verifica nuevamente antes de usar el operador `!`
+                          ? Image.file(_fotoFile!, fit: BoxFit.cover)
+                          : const SizedBox
+                              .shrink(), // Placeholder si no hay imagen
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 20),
             // Registrar corte
             Text(
@@ -174,9 +228,11 @@ class _RegistroCorteScreenState extends State<registroCorte> {
             TextField(
               controller: _textController,
               decoration: InputDecoration(
-                labelText: _selectedOption == 'Ninguna' ? 'Valor del Medidor' : 'Observación',
+                labelText: _selectedOption == 'Ninguna'
+                    ? 'Valor del Medidor'
+                    : 'Observación',
                 labelStyle: TextStyle(color: Colors.white),
-                hintText: _selectedOption == 'Ninguna' 
+                hintText: _selectedOption == 'Ninguna'
                     ? 'Ingrese el valor del medidor'
                     : 'Ingrese la observación',
                 hintStyle: TextStyle(color: Colors.grey),
@@ -204,11 +260,25 @@ class _RegistroCorteScreenState extends State<registroCorte> {
               ),
             ),
             const SizedBox(height: 20),
+            // Botón para tomar foto
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: _tomarFoto,
+                icon: const Icon(Icons.camera_alt),
+                label: const Text('Tomar Foto'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(200, 50),
+                  backgroundColor: Colors.blueAccent.shade700,
+                  foregroundColor: Colors.black,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
             Center(
               child: ElevatedButton.icon(
                 onPressed: _irAlPlano,
                 icon: const Icon(Icons.map),
-                label: const Text('Ir al Plando'),
+                label: const Text('Volver al plano'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(200, 50),
                   backgroundColor: Colors.blueAccent.shade700,

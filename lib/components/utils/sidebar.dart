@@ -37,7 +37,7 @@ class SideBar extends StatelessWidget {
                 },
                 child: Center(
                   child: Text(
-                    'BIENVENIDO A\nOOSIV R.L.',
+                    'BIENVENIDO A\nCOOSIV R.L.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white, // Texto blanco
@@ -85,7 +85,7 @@ class SideBar extends StatelessWidget {
             ),
             ListTile(
               title: Text(
-                'Rutas guardadas localmente (eliminar luego)',
+                'Ver rutas guardadas localmente',
                 style: TextStyle(color: Colors.white),
               ),
               onTap: () {

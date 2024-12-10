@@ -38,9 +38,10 @@ class _ListaRegistrosScreenState extends State<ListaRegistrosScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lista de Registros de Corte'),
+        title: const Text('Lista de Registros de Corte', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -139,6 +140,28 @@ class _ListaRegistrosScreenState extends State<ListaRegistrosScreen> {
                                     fontSize: 12,
                                   ),
                                 ),
+                                if (registro.fotoBase64 != null) ...[
+                                  Text(
+                                    '📷 Foto:',
+                                    style: TextStyle(
+                                      color: const Color.fromARGB(255, 255, 255, 255),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.white),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Image.memory(
+                                      base64Decode(registro.fotoBase64!),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),

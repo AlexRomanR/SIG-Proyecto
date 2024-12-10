@@ -57,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 140, // Alto deseado para el logo
                         ),
                         Text(
-                          'BIENVENIDO A Coosiv R.L.',
+                          'BIENVENIDO A COOSIV R.L.',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,

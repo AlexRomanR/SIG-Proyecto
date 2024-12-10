@@ -56,8 +56,9 @@ class ViewSavedRutas extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Rutas Guardadas'),
+        title: Text('Rutas Guardadas', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       backgroundColor: Colors.black,
       body: FutureBuilder<List<RutasSinCortar>>(

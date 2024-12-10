@@ -44,6 +44,7 @@ class _CortesDashboardViewState extends State<CortesDashboardView> {
         ),
         backgroundColor: Colors.black,
         centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       backgroundColor: Colors.black,
       body: Padding(

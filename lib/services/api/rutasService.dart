@@ -92,6 +92,10 @@ class RutasService extends ChangeNotifier {
 
   Future<void> exportarCortesAlServidor(List<RegistroCorte> registros) async {
     for (var registro in registros) {
+      int codigoUbicacion = registro.codigoUbicacion;
+      int codigoFijo = registro.codigoFijo;
+      int valorMedidor = int.tryParse(registro.valorMedidor ?? '0') ?? 0;
+
       // Construir el cuerpo SOAP con los valores correctos
       String fechaFormateada = DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(registro.fechaCorte);
       String soapBody = '''
@@ -99,12 +103,12 @@ class RutasService extends ChangeNotifier {
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
     <W3Corte_UpdateCorte xmlns="http://activebs.net/">
-      <liNcoc>${registro.codigoUbicacion}</liNcoc> 
+      <liNcoc>$codigoUbicacion</liNcoc> 
       <liCemc>0</liCemc>
       <ldFcor>$fechaFormateada</ldFcor>
       <liPres>0</liPres>
-      <liCobc>${registro.codigoFijo}</liCobc>
-      <liLcor>${registro.valorMedidor}</liLcor>
+      <liCobc>$codigoFijo</liCobc>  
+      <liLcor>$valorMedidor</liLcor>
       <liNofn>1</liNofn>
       <lsAppName>FlutterApp</lsAppName>
     </W3Corte_UpdateCorte>

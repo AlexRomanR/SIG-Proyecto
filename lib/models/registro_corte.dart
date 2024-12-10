@@ -8,6 +8,7 @@ class RegistroCorte {
   final String? valorMedidor;
   final String? observacion;
   final DateTime fechaCorte; 
+  final String? fotoBase64;
 
   RegistroCorte({
     required this.codigoUbicacion,
@@ -19,6 +20,7 @@ class RegistroCorte {
     this.valorMedidor,
     this.observacion,
     required this.fechaCorte,  
+    this.fotoBase64,
   });
 
   // Método para convertir a Map (incluyendo fechaCorte)
@@ -33,6 +35,7 @@ class RegistroCorte {
       'valorMedidor': valorMedidor,
       'observacion': observacion,
       'fechaCorte': fechaCorte.toIso8601String(),  
+      'fotoBase64': fotoBase64,
     };
   }
 
@@ -48,6 +51,7 @@ class RegistroCorte {
       valorMedidor: map['valorMedidor'],
       observacion: map['observacion'],
       fechaCorte: DateTime.parse(map['fechaCorte']),  
+      fotoBase64: map['fotoBase64'],
     );
   }
 }

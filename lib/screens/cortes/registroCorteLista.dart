@@ -180,11 +180,27 @@ class _ListaRegistrosScreenState extends State<ListaRegistrosScreen> {
                     icon: Icons.cloud_upload,
                     color: Colors.orangeAccent,
                     onPressed: () async {
+                      if (registros.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('No hay registros para exportar.')),
+                        );
+                        return;
+                      }
+                  
                       final rutasService = RutasService();
                       await rutasService.exportarCortesAlServidor(registros);
+
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.remove('registros_corte');
+                  
+                      setState(() {
+                        registros.clear(); 
+                      });
+                  
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Registros exportados al servidor.')),
+                        SnackBar(content: Text('Registros exportados correctamente.')),
                       );
+
                     },
                   ),
                   const SizedBox(height: 16),

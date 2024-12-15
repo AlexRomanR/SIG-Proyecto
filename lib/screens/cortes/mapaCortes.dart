@@ -57,7 +57,7 @@ Future<List<RutasSinCortar>> _loadSavedRutas() async {
 
 // Function to get distance from Directions API
 Future<double> getDirectionsDistance(LatLng origin, LatLng destination) async {
-  final String apiKey = 'AIzaSyDPnYs5bEjFjnBD1WsUtuZ6NtQkOAGF1I0';
+  final String apiKey = 'AIzaSyBW8TFzDDCOrybxDrKGeGQ1xZBvvwfxyz4';
   final url = Uri.parse(
       'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey');
 
@@ -173,7 +173,7 @@ double _calculateTotalDistance(List<int> route, List<List<double>> matrix) {
 }
 
 class _MapaCortesState extends State<mapaCortes> {
-  final String apiKey = 'AIzaSyDPnYs5bEjFjnBD1WsUtuZ6NtQkOAGF1I0';
+  final String apiKey = 'AIzaSyBW8TFzDDCOrybxDrKGeGQ1xZBvvwfxyz4';
   Set<Marker> markers = {};
   Set<Polyline> polylines = {};
   String estimatedTime = '';

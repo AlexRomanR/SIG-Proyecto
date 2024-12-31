@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sig_proyecto/screens/cortes/ImportCortesFromServer.dart';
+import 'package:sig_proyecto/screens/cortes/cortesRutasLocalSinOrden.dart';
 import 'package:sig_proyecto/screens/cortes/mapaCortes.dart';
 import 'package:sig_proyecto/screens/cortes/registroCorteLista.dart';
 import 'package:sig_proyecto/services/api/rutasService.dart';
@@ -86,25 +87,14 @@ class _CortesDashboardViewState extends State<CortesDashboardView> {
             const SizedBox(height: 16),
             _buildButton(
               context: context,
-              text: "Exportar cortes al servidor",
+              text: "Lista para cortes",
               icon: Icons.cloud_upload,
-              color: Colors.orangeAccent,
+              color: Color.fromARGB(255, 214, 231, 113),
               onPressed: () async {
-                if (registros.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('No hay registros para exportar.'),
-                    ),
-                  );
-                  return;
-                }
-
-                final rutasService = RutasService();
-                await rutasService.exportarCortesAlServidor(registros);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Registros exportados al servidor.'),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewSavedRutasSinOrden()
                   ),
                 );
               },
@@ -112,9 +102,9 @@ class _CortesDashboardViewState extends State<CortesDashboardView> {
             const SizedBox(height: 16),
             _buildButton(
               context: context,
-              text: "Lista de cortes realizados",
+              text: "Exportar cortes al servidor",
               icon: Icons.list_alt,
-              color: Colors.redAccent,
+              color: Color.fromARGB(255, 233, 133, 75),
               onPressed: () {
                 Navigator.push(
                   context,

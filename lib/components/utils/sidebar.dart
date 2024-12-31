@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sig_proyecto/screens/cortes/cortesRutasLocalSinOrden.dart';
 import 'package:sig_proyecto/screens/cortes/registroCorteLista.dart';
 import 'package:sig_proyecto/screens/cortes/registroCorteLista.dart';
 
@@ -83,20 +84,20 @@ class SideBar extends StatelessWidget {
                 );
               },
             ),
-            ListTile(
-              title: Text(
-                'Ver rutas guardadas localmente',
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ViewSavedRutas(),
-                  ),
-                );
-              },
-            ),
+            // ListTile(
+            //   title: Text(
+            //     'Lista para cortes',
+            //     style: TextStyle(color: Colors.white),
+            //   ),
+            //   onTap: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (context) => ViewSavedRutasSinOrden(),
+            //       ),
+            //     );
+            //   },
+            // ),
             ListTile(
               title: Text(
                 'Reconexión',

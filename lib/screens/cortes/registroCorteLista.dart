@@ -34,6 +34,34 @@ class _ListaRegistrosScreenState extends State<ListaRegistrosScreen> {
     });
   }
 
+  Future<void> _eliminarRutasAsociadas() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Obtener IDs de las rutas asociadas a los registros de corte
+    final rutasAsociadas = registros.map((r) => r.codigoUbicacion.toString()).toSet();
+
+    // Filtrar y actualizar rutas_seleccionadas
+    final rutasSeleccionadas = prefs.getStringList('rutas_seleccionadas') ?? [];
+    final rutasSeleccionadasFiltradas = rutasSeleccionadas.where((ruta) => !rutasAsociadas.contains(ruta)).toList();
+    await prefs.setStringList('rutas_seleccionadas', rutasSeleccionadasFiltradas);
+
+    // Filtrar y actualizar saved_rutas_tsp
+    final savedRutasTspJson = prefs.getString('saved_rutas_tsp');
+    if (savedRutasTspJson != null) {
+      final List<dynamic> savedRutasTsp = jsonDecode(savedRutasTspJson);
+      final savedRutasTspFiltradas = savedRutasTsp.where((ruta) => !rutasAsociadas.contains(ruta['bscocNcoc'].toString())).toList();
+      await prefs.setString('saved_rutas_tsp', jsonEncode(savedRutasTspFiltradas));
+    }
+
+    // Filtrar y actualizar saved_rutas
+    final savedRutasJson = prefs.getString('saved_rutas');
+    if (savedRutasJson != null) {
+      final List<dynamic> savedRutas = jsonDecode(savedRutasJson);
+      final savedRutasFiltradas = savedRutas.where((ruta) => !rutasAsociadas.contains(ruta['bscocNcoc'].toString())).toList();
+      await prefs.setString('saved_rutas', jsonEncode(savedRutasFiltradas));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,6 +91,9 @@ class _ListaRegistrosScreenState extends State<ListaRegistrosScreen> {
                       itemCount: registros.length,
                       itemBuilder: (context, index) {
                         final registro = registros[index];
+                        final backgroundColor = registro.observacion != null
+                          ? Colors.orange
+                          : Colors.green;
                         return Card(
                           elevation: 4,
                           color:
@@ -75,9 +106,15 @@ class _ListaRegistrosScreenState extends State<ListaRegistrosScreen> {
                           child: ListTile(
                             leading: CircleAvatar(
                               radius: 25,
-                              backgroundColor: Colors.lightBlue,
-                              child: Icon(Icons.device_hub,
-                                  color: Colors.white), // Ícono personalizado
+                              backgroundColor: backgroundColor,
+                              child: Text(
+                                '${index + 1}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                             title: Text(
                               'Ubicación: ${registro.codigoUbicacion}',
@@ -189,6 +226,7 @@ class _ListaRegistrosScreenState extends State<ListaRegistrosScreen> {
                   
                       final rutasService = RutasService();
                       await rutasService.exportarCortesAlServidor(registros);
+                      await _eliminarRutasAsociadas();
 
                       final prefs = await SharedPreferences.getInstance();
                       await prefs.remove('registros_corte');

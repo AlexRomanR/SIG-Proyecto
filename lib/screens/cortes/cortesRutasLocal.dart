@@ -127,20 +127,28 @@ class _ViewSavedRutasOrderedState extends State<ViewSavedRutasOrdered> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                    onTap: () {
-                      // Al tocar el elemento #4, por ejemplo, queremos usar 4 puntos en el mapa:
-                      // Si deseas que cada ítem "corresponda" a su índice + 1, podrías hacer:
-                      final numeroElegido = index + 1;
+                  onTap: () {
+                    if (index == 0) {
+                      _irAlMapa(index);
+                    } else {
+                      // Verificar si el punto anterior (index-1) está cortado
+                      final idAnterior = rutasOrdenadas[index - 1].bscocNcoc.toString();
+                      final anteriorCortado = cutPoints.contains(idAnterior);
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => mapaCortes(maxPoints: numeroElegido, autoOpenIndex: numeroElegido - 1),
-                        ),
-                      ).then((_) {
-                      _loadCutPoints(); // Recarga los datos al regresar
-                    });
-                    },
+                      if (anteriorCortado) {
+                        // El punto anterior está cortado => Se permite
+                        _irAlMapa(index);
+                      } else {
+                        // El punto anterior NO está cortado => Se bloquea
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('No puedes acceder a este punto hasta que el anterior esté cortado.'),
+                            backgroundColor: Color.fromARGB(255, 255, 129, 97),
+                          ),
+                        );
+                      }
+                    }
+                  },
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -175,6 +183,23 @@ class _ViewSavedRutasOrderedState extends State<ViewSavedRutasOrdered> {
       ),
     );
   }
+
+  void _irAlMapa(int index) {
+    final numeroElegido = index + 1;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => mapaCortes(
+          maxPoints: numeroElegido, 
+          autoOpenIndex: numeroElegido - 1,
+        ),
+      ),
+    ).then((_) {
+      _loadCutPoints(); // Recarga los datos al regresar
+    });
+  }
+
 
   // Carga las rutas desde SharedPreferences y las ordena con el algoritmo TSP.
   Future<List<RutasSinCortar>> _loadAndOrderRutas() async {

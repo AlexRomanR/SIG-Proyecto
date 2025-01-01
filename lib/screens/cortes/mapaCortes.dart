@@ -102,65 +102,99 @@ class _MapaCortesState extends State<mapaCortes> {
   // CARGA DE DATOS Y MARCADORES
   Future<void> _loadDataAndBuildRoute() async {
     final maxPoints = widget.maxPoints ?? 0;
-    // 1) Cargar rutas (puedes usar _loadOrderedRutas si lo deseas)
+    // 1) Cargar TODAS las rutas y calcular TSP
     List<RutasSinCortar> rutas = await _loadSavedRutas();
     if (maxPoints > 0) {
-      rutas = await _loadOrderedRutas();
-      print('ordenado xd');
+      rutas = await _loadOrderedRutas(); 
     } else {
       rutas = await _loadSavedRutas();
     }
 
     if (rutas.isEmpty) return;
 
-    // 2) Actualizar la cantidad de puntos ya cortados
-    final cutPoints = await _loadCutPoints();
+    // Cargamos puntos cortados (para contarlos, etc.)
+    final cutPointsSet = await _loadCutPoints();
     setState(() {
-      this.cutPoints = cutPoints.length.toString();
+      this.cutPoints = cutPointsSet.length.toString();
     });
 
-    // 3) Tomar un subset
-    List<RutasSinCortar> rutasLimitadas;
-    if (maxPoints > 0 && maxPoints <= rutas.length) {
-      rutasLimitadas = rutas.take(maxPoints).toList();
-    } else {
-      rutasLimitadas = rutas.take(10).toList(); // Ejemplo, limit 10
-    }
+    // Tomamos hasta 10 o lo que gustes
+    List<RutasSinCortar> rutasLimitadas =
+        (maxPoints > 0 && maxPoints <= rutas.length)
+        ? rutas.take(maxPoints).toList()
+        : rutas.take(10).toList();
 
-    // 4) Calcular TSP
+    // Calculamos TSP
     final oficinaFinal = LatLng(-16.3850, -60.9651);
-    final distanceMatrix =
-        await buildDistanceMatrix(rutasLimitadas, oficinaInicial, oficinaFinal);
+    final distanceMatrix = await buildDistanceMatrix(
+      rutasLimitadas,
+      oficinaInicial,
+      oficinaFinal,
+    );
     final bestRoute = tsp(distanceMatrix);
 
-    // 5) Construir la ruta de puntos
-    List<LatLng> routeCoordinates = [];
-    routeCoordinates.add(oficinaInicial);
+    // Construir la lista en orden TSP (sin la oficina inicial ni final)
     List<RutasSinCortar> tempPointsMap = [];
     for (int i = 1; i < bestRoute.length - 1; i++) {
-      final point = rutasLimitadas[bestRoute[i] - 1];
-      routeCoordinates.add(LatLng(point.bscntlati, point.bscntlogi));
-      tempPointsMap.add(point);
+      tempPointsMap.add(rutasLimitadas[bestRoute[i] - 1]);
     }
-    routeCoordinates.add(oficinaFinal);
+    // p1 está en tempPointsMap[0], p2 en tempPointsMap[1], p3 en tempPointsMap[2], ...
 
-    // 6) Cargar íconos
-    BitmapDescriptor sIcon = await createBitmapDescriptor('assets/utils/start.png');
-    BitmapDescriptor eIcon = await createBitmapDescriptor('assets/utils/end.png');
+    setState(() => this.pointsMap = tempPointsMap);
 
-    // 7) Pedir la polyline a Google Directions
-    List<String> waypoints = [];
-    for (int i = 1; i < routeCoordinates.length - 1; i++) {
-      waypoints.add('${routeCoordinates[i].latitude},${routeCoordinates[i].longitude}');
+    // ELEGIR SÓLO 2 PUNTOS O (1 + oficina) SEGÚN maxPoints
+    List<LatLng> routeCoordinates = [];
+
+    if (maxPoints == 1) {
+      // Oficina Inicial -> p1
+      if (pointsMap.isNotEmpty) {
+        routeCoordinates.add(oficinaInicial);
+        routeCoordinates.add(
+          LatLng(pointsMap[0].bscntlati, pointsMap[0].bscntlogi),
+        );
+      }
+    } else if (maxPoints > 1) {
+      // Del punto (n-1) al punto n
+      // p1 => pointsMap[0], p2 => pointsMap[1], p3 => pointsMap[2], ...
+      // Si maxPoints=2 => p1->p2
+      // Si maxPoints=3 => p2->p3
+      // Indices en pointsMap => [n-2], [n-1]
+      final idxA = maxPoints - 2; // Ej. (3-2)=1 => p2
+      final idxB = maxPoints - 1; // Ej. (3-1)=2 => p3
+
+      // Validamos que existan
+      if (idxA >= 0 && idxB < pointsMap.length) {
+        routeCoordinates.add(LatLng(
+          pointsMap[idxA].bscntlati, 
+          pointsMap[idxA].bscntlogi
+        ));
+        routeCoordinates.add(LatLng(
+          pointsMap[idxB].bscntlati, 
+          pointsMap[idxB].bscntlogi
+        ));
+      }
     }
-    final waypointsString = 'optimize:false|' + waypoints.join('|');
 
+    if (routeCoordinates.length < 2) {
+      print("No hay tramo válido para maxPoints=$maxPoints");
+      return;
+    }
+
+    // Cargamos íconos
+    BitmapDescriptor sIcon = 
+        await createBitmapDescriptor('assets/utils/start.png');
+    BitmapDescriptor eIcon = 
+        await createBitmapDescriptor('assets/utils/end.png');
+
+    final origin = routeCoordinates.first;
+    final destination = routeCoordinates.last;
+
+    // Pedimos direcciones con 2 puntos (no hay waypoints)
     final url = Uri.parse(
-        'https://maps.googleapis.com/maps/api/directions/json'
-        '?origin=${routeCoordinates.first.latitude},${routeCoordinates.first.longitude}'
-        '&destination=${routeCoordinates.last.latitude},${routeCoordinates.last.longitude}'
-        '&waypoints=$waypointsString'
-        '&key=$apiKey'
+      'https://maps.googleapis.com/maps/api/directions/json'
+      '?origin=${origin.latitude},${origin.longitude}'
+      '&destination=${destination.latitude},${destination.longitude}'
+      '&key=$apiKey'
     );
 
     try {
@@ -179,16 +213,14 @@ class _MapaCortesState extends State<mapaCortes> {
           }
           String distText = (totalDistance / 1000).toStringAsFixed(2) + ' km';
 
-          // Tiempo estimado (ej. con velocidad 15 km/h)
+          // Tiempo estimado
           final double speedKmh = 15.0;
-          double hours = (totalDistance / 1000) / speedKmh; 
+          double hours = (totalDistance / 1000) / speedKmh;
           int estimatedHours = hours.floor();
           int estimatedMinutes = ((hours - estimatedHours) * 60).round();
           String timeText = '${estimatedHours}h ${estimatedMinutes}m';
 
-          // Actualizar estado
           setState(() {
-            this.pointsMap = tempPointsMap;
             this.startIcon = sIcon;
             this.endIcon = eIcon;
             this.polylinePoints = tempPolylinePoints;
@@ -205,23 +237,25 @@ class _MapaCortesState extends State<mapaCortes> {
               )
             };
           });
+
+          // Autoabrir formulario si autoOpenIndex no es nulo
           if (widget.autoOpenIndex != null) {
             final indexToOpen = widget.autoOpenIndex!;
             if (indexToOpen >= 0 && indexToOpen < pointsMap.length) {
               final rutaToCheck = pointsMap[indexToOpen];
-              final cutPointsSet = await _loadCutPoints();
+              final isCut = cutPointsSet.contains(rutaToCheck.bscocNcoc.toString());
+              final hasObservation = _tieneObservacion(rutaToCheck); // Usa tu lógica para verificar observación
 
-              // Verificamos si el punto está cortado
-              if (!cutPointsSet.contains(rutaToCheck.bscocNcoc.toString())) {
+              // Si el punto NO está cortado o está cortado Y tiene observación
+              if (!isCut || !hasObservation) {
                 setState(() {
-                  selectedRuta = rutaToCheck; // Seleccionamos la ruta
-                  showHalfForm = true;        // Mostramos el formulario
+                  selectedRuta = rutaToCheck;
+                  showHalfForm = true;
                 });
               }
             }
           }
-
-          // Finalmente, refrescar marcadores
+          // Refrescar marcadores con la nueva lógica
           _refrescarMarcadores();
         }
       }
@@ -229,6 +263,7 @@ class _MapaCortesState extends State<mapaCortes> {
       print("Error: $e");
     }
   }
+
 
   Future<List<RutasSinCortar>> _loadSavedRutas() async {
     final prefs = await SharedPreferences.getInstance();
@@ -382,97 +417,152 @@ class _MapaCortesState extends State<mapaCortes> {
   }
 
   // CREAR MARCADORES
-  Future<void> _refrescarMarcadores() async {
-    final cutPointsSet = await _loadCutPoints();
-    if (startIcon == null || endIcon == null) return;
+Future<void> _refrescarMarcadores() async {
+  final cutPointsSet = await _loadCutPoints();
+  final mPoints = widget.maxPoints ?? 0;
 
-    Set<Marker> markersTemp = {};
+  Set<Marker> markersTemp = {};
 
-    // Marcador de inicio
-    markersTemp.add(Marker(
-      markerId: MarkerId('oficina_inicial'),
-      position: oficinaInicial,
-      infoWindow: InfoWindow(title: 'Oficina Inicial'),
-      icon: startIcon!,
-    ));
-
-    // Marcador final
-    final oficinaFinal = LatLng(-16.3850, -60.9651);
-    markersTemp.add(Marker(
-      markerId: MarkerId('oficina_final'),
-      position: oficinaFinal,
-      infoWindow: InfoWindow(title: 'Oficina Final'),
-      icon: endIcon!,
-    ));
-
-    // Marcadores de puntos
-    for (int i = 0; i < pointsMap.length; i++) {
-      final point = pointsMap[i];
-      bool isCut = cutPointsSet.contains(point.bscocNcoc.toString());
-      bool hasValue = false;
-
-      if (isCut) {
-        final registro = registros.firstWhere(
-          (registro) => registro.codigoUbicacion == point.bscocNcoc,
-          orElse: () => RegistroCorte(
-            codigoUbicacion: 0,
-            usuarioRelacionado: 0,
-            codigoFijo: 0,
-            nombre: '',
-            medidorSerie: '',
-            numeroMedidor: '',
-            fechaCorte: DateTime.now(),
-          ),
-        );
-        hasValue = registro.valorMedidor != null && registro.valorMedidor!.isNotEmpty;
-      }
-
-      final customIcon = await createCustomMarkerWithNumber(i + 1, isCut, hasValue);
+  if (mPoints == 1) {
+    // Oficina
+    if (startIcon != null) {
+      markersTemp.add(Marker(
+        markerId: MarkerId('oficina_inicial'),
+        position: oficinaInicial,
+        infoWindow: InfoWindow(title: 'Oficina Inicial'),
+        icon: startIcon!,
+      ));
+    }
+    // p1
+    if (pointsMap.isNotEmpty) {
+      final point = pointsMap[0];
+      final isCut = cutPointsSet.contains(point.bscocNcoc.toString());
+      final hasValue = _tieneObservacion(point);
+      final customIcon = await createCustomMarkerWithNumber(1, isCut, hasValue);
 
       markersTemp.add(Marker(
-        markerId: MarkerId('punto_${i + 1}'),
+        markerId: MarkerId('punto_1'),
         position: LatLng(point.bscntlati, point.bscntlogi),
-        infoWindow: InfoWindow(title: 'Punto ${i + 1}'),
+        infoWindow: InfoWindow(title: 'Punto 1'),
         icon: customIcon,
-onTap: () {
-  // Permitir abrir el formulario si:
-  // 1. El punto no está cortado, o
-  // 2. El punto está cortado pero tiene observación
-  if (!isCut || !hasValue) {
-    setState(() {
-      selectedRuta = point;
-      showHalfForm = true;
-      // Limpiamos los campos del formulario
-      _selectedOption = 'Ninguna';
-      _textController.clear();
-      _fotoBase64 = null;
-      _fotoFile = null;
-    });
-  } else {
-    // Mostrar mensaje si no se puede abrir el formulario
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'El punto ${i + 1} ya está cortado y no tiene observación.',
-        ),
-        backgroundColor: Colors.orangeAccent,
-      ),
-    );
-  }
-},
+        onTap: () {
+          if (!isCut || !hasValue) {
+            setState(() {
+              selectedRuta = point;
+              showHalfForm = true;
+              _selectedOption = 'Ninguna';
+              _textController.clear();
+              _fotoBase64 = null;
+              _fotoFile = null;
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('El punto 1 ya está cortado y no tiene observación.'),
+                backgroundColor: Colors.orangeAccent,
+              ),
+            );
+          }
+        },
+      ));
+    }
+  } else if (mPoints > 1) {
+    final idxA = mPoints - 2; 
+    final idxB = mPoints - 1;
 
+    // p(n-1)
+    if (idxA >= 0 && idxA < pointsMap.length) {
+      final pointA = pointsMap[idxA];
+      final isCutA = cutPointsSet.contains(pointA.bscocNcoc.toString());
+      final hasValueA = _tieneObservacion(pointA);
+      final customIconA = await createCustomMarkerWithNumber(mPoints - 1, isCutA, hasValueA);
+
+      markersTemp.add(Marker(
+        markerId: MarkerId('punto_${mPoints-1}'),
+        position: LatLng(pointA.bscntlati, pointA.bscntlogi),
+        infoWindow: InfoWindow(title: 'Punto ${mPoints-1}'),
+        icon: customIconA,
+        onTap: () {
+          print(hasValueA);
+          if (!isCutA || !hasValueA) {
+            setState(() {
+              selectedRuta = pointA;
+              showHalfForm = true;
+              _selectedOption = 'Ninguna';
+              _textController.clear();
+              _fotoBase64 = null;
+              _fotoFile = null;
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('El punto ${mPoints-1} ya está cortado y sin observación.'),
+                backgroundColor: Colors.orangeAccent,
+              ),
+            );
+          }
+        },
       ));
     }
 
-    int cutCount = pointsMap
-        .where((p) => cutPointsSet.contains(p.bscocNcoc.toString()))
-        .length;
+    // p(n)
+    if (idxB >= 0 && idxB < pointsMap.length) {
+      final pointB = pointsMap[idxB];
+      final isCutB = cutPointsSet.contains(pointB.bscocNcoc.toString());
+      final hasValueB = _tieneObservacion(pointB);
+      final customIconB = await createCustomMarkerWithNumber(mPoints, isCutB, hasValueB);
 
-    setState(() {
-      markers = markersTemp;
-      this.cutPoints = cutCount.toString();
-    });
+      markersTemp.add(Marker(
+        markerId: MarkerId('punto_$mPoints'),
+        position: LatLng(pointB.bscntlati, pointB.bscntlogi),
+        infoWindow: InfoWindow(title: 'Punto $mPoints'),
+        icon: customIconB,
+        onTap: () {
+          print(hasValueB);
+          if (!isCutB || !hasValueB) {
+            setState(() {
+              selectedRuta = pointB;
+              showHalfForm = true;
+              _selectedOption = 'Ninguna';
+              _textController.clear();
+              _fotoBase64 = null;
+              _fotoFile = null;
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('El punto $mPoints ya está cortado y sin observación.'),
+                backgroundColor: Colors.orangeAccent,
+              ),
+            );
+          }
+        },
+      ));
+    }
   }
+
+  setState(() {
+    markers = markersTemp;
+  });
+}
+
+// Método auxiliar
+bool _tieneObservacion(RutasSinCortar point) {
+  final registro = registros.firstWhere(
+    (r) => r.codigoUbicacion == point.bscocNcoc,
+    orElse: () => RegistroCorte(
+      codigoUbicacion: 0,
+      usuarioRelacionado: 0,
+      codigoFijo: 0,
+      nombre: '',
+      medidorSerie: '',
+      numeroMedidor: '',
+      fechaCorte: DateTime.now(),
+    ),
+  );
+  return registro.valorMedidor != null && registro.valorMedidor!.isNotEmpty;
+}
+
 
   // CREAR ÍCONO DE MARCADOR
   Future<BitmapDescriptor> createBitmapDescriptor(String assetPath) async {
@@ -698,10 +788,10 @@ onTap: () {
                     'Distancia Total: $totalDistanceText',
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
-                  Text(
-                    'Total de Puntos: $totalPoints',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
+                  // Text(
+                  //   'Total de Puntos: $totalPoints',
+                  //   style: TextStyle(color: Colors.white, fontSize: 16),
+                  // ),
                   Text(
                     'Puntos Cortados: $cutPoints',
                     style: TextStyle(color: Colors.white, fontSize: 16),

@@ -13,7 +13,7 @@ class _PruebaState extends State<Prueba> {
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
   String apiKey =
-      'AIzaSyDF_Edk_GpqMZC87nE6MZExdlp-AecW4qo'; // Reemplaza con tu clave de API
+      'AIzaSyDyA5YoLE_lxSdRpaFqb8owzDzOJKTR04g'; // Reemplaza con tu clave de API
 
   // Coordenadas de origen y destino
   LatLng _origin = LatLng(40.748817, -73.985428); // Empire State Building

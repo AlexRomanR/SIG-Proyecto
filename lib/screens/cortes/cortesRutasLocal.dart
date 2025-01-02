@@ -295,7 +295,7 @@ Future<List<RutasSinCortar>> _loadSavedRutas() async {
 }
 
 Future<double> getDirectionsDistance(LatLng origin, LatLng destination) async {
-  final String apiKey = 'AIzaSyDF_Edk_GpqMZC87nE6MZExdlp-AecW4qo'; // Reemplaza con tu clave
+  final String apiKey = 'AIzaSyDyA5YoLE_lxSdRpaFqb8owzDzOJKTR04g'; // Reemplaza con tu clave
   final url = Uri.parse(
       'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey');
 

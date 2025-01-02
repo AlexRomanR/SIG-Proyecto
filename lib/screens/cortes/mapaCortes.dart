@@ -29,7 +29,7 @@ class _MapaCortesState extends State<mapaCortes> {
   // --------------------------------
   // Atributos del mapa
   // --------------------------------
-  final String apiKey = 'AIzaSyDF_Edk_GpqMZC87nE6MZExdlp-AecW4qo';
+  final String apiKey = 'AIzaSyDyA5YoLE_lxSdRpaFqb8owzDzOJKTR04g';
   LatLng oficinaInicial = LatLng(-16.3776, -60.9605);
 
   Set<Marker> markers = {};
